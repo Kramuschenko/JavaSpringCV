@@ -15,12 +15,20 @@ public class Projects {
     @Column(name = "Name")
     private String name;
 
+    @Column(name = "Comment")
+    private String comment;
+
 
     public Projects() {
     }
 
     public Projects(String name) {
         this.name = name;
+    }
+
+    public Projects(String name, String comment) {
+        this.name = name;
+        this.comment = comment;
     }
 
     public String getName() {
