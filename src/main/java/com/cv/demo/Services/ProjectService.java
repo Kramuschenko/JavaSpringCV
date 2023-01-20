@@ -1,37 +1,47 @@
 package com.cv.demo.Services;
 
-import com.cv.demo.db.Projects;
-import com.cv.demo.db.Repository.ProjectsRep;
+import com.cv.demo.db.Project;
+import com.cv.demo.db.Repository.ProjectRepository;
+import com.cv.demo.db.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
-@Service
 
+@Service
 public class ProjectService {
+
     @Autowired
-    ProjectsRep projectsRep;
-    //getting all Projects records
-    public List<Projects> getAllProjects()
-    {
-        List<Projects> projects = new ArrayList<Projects>();
-        projectsRep.findAll().forEach(Projects -> projects.add(Projects));
-        return projects;
+    ProjectRepository projectRepository;
+
+    @Autowired
+    SubjectService subjectService;
+
+    public List<Project> getAllProjects() {
+        return projectRepository.findAll();
     }
-    //getting a specific record
-    public Projects getProjectsById(int id)
-    {
-        return projectsRep.findById(id).get();
+
+    public Project getProjectsById(int id) {
+        return projectRepository.findById(id).get();
     }
-    public void saveOrUpdate(Projects Projects)
-    {
-        projectsRep.save(Projects);
+
+    public void saveOrUpdate(Project project) {
+        List<Project> tmp = subjectService.getSubjectsById(project.getSubject_id()).getProjects();
+        tmp.add(project);
+        subjectService.getSubjectsById(project.getSubject_id()).setProjects(tmp);
+        projectRepository.save(project);
     }
-    //deleting a specific record
-    public void delete(int id)
-    {
-        projectsRep.deleteById(id);
+
+    public void delete(int id) {
+        projectRepository.deleteById(id);
+    }
+
+    public static void setCreationInformation(Project project) {
+        project.setCreatedAt(LocalDateTime.now());
+    }
+
+    public static void setModificationInformation(Project project) {
+        project.setModifiedAt(LocalDateTime.now());
     }
 }
