@@ -8,9 +8,8 @@ import javax.persistence.*;
 @Table(name = "PROJECT")
 public class Projects {
     @Id
-    @GeneratedValue
     @Column(name = "Id" , nullable = false)
-    private Long id;
+    private int id;
 
     @Column(name = "Name")
     private String name;
@@ -22,11 +21,13 @@ public class Projects {
     public Projects() {
     }
 
-    public Projects(String name) {
+    public Projects(int id, String name) {
+        this.id = id;
         this.name = name;
     }
 
-    public Projects(String name, String comment) {
+    public Projects(int id, String name, String comment) {
+        this.id = id;
         this.name = name;
         this.comment = comment;
     }
@@ -39,11 +40,19 @@ public class Projects {
         this.name = name;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public int getId() {
         return id;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }
