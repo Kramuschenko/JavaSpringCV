@@ -19,7 +19,7 @@ import java.util.Objects;
 public class Project {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @Column(name = "ID", nullable = false)
     private int id;
 

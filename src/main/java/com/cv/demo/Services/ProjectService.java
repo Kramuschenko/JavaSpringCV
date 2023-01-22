@@ -47,7 +47,6 @@ public class ProjectService {
             project1.setComment(project.getComment());
             project1.setSubject_id(project.getSubject_id());
             setModificationInformation(project1);
-            System.err.println(project1);
         } else {
             project1 = new Project();
             project1.setName(project.getName());
@@ -57,7 +56,9 @@ public class ProjectService {
         }
 
         tmp.add(project1);
-        subjectService.getSubjectsById(project.getSubject_id()).setProjects(tmp);
+        subjectService.getSubjectsById(project1.getSubject_id()).setProjects(tmp);
+
+        System.gc();
 
         projectRepository.save(project1);
     }
