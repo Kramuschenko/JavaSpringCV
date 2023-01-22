@@ -1,6 +1,5 @@
 package com.cv.demo.controllers;
 
-import com.cv.demo.Services.ProjectService;
 import com.cv.demo.Services.SubjectService;
 import com.cv.demo.db.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
