@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 public class SubjectController {
+
     @Autowired
     private SubjectService subjectService;
 
