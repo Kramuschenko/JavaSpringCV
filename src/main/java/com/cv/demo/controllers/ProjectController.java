@@ -2,7 +2,6 @@ package com.cv.demo.controllers;
 
 import com.cv.demo.Services.ProjectService;
 import com.cv.demo.db.Project;
-import com.cv.demo.db.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+
+import static com.cv.demo.Services.ProjectService.setCreationInformation;
+import static com.cv.demo.Services.ProjectService.setModificationInformation;
 
 @RestController
 public class ProjectController {
@@ -39,5 +41,4 @@ public class ProjectController {
         projectService.saveOrUpdate(project);
         return project.getId();
     }
-
 }

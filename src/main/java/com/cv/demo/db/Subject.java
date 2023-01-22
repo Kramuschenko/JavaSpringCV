@@ -28,7 +28,7 @@ public class Subject {
     private String teacher;
 
     @OneToMany(
-            cascade = CascadeType.ALL,
+            cascade = CascadeType.MERGE,
             orphanRemoval = true
     )
     @JoinColumn(name = "SUBJECT_ID")
