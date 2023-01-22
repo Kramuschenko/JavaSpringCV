@@ -23,20 +23,45 @@ public class ProjectService {
     }
 
     public Project getProjectsById(int id) {
-        return projectRepository.findById(id).get();
+        if (projectRepository.findById(id).isPresent())
+            return projectRepository.findById(id).get();
+        else
+            return null;
     }
 
     @Transactional
     public void saveOrUpdate(Project project) {
         List<Project> tmp = subjectService.getSubjectsById(project.getSubject_id()).getProjects();
-        tmp.add(project);
+
+        Project project1 = getProjectsById(project.getId());
+
+        if (project1 != null) {
+            for (int i = 0; i < tmp.size(); i++) {
+                if (tmp.get(i).getId() == project1.getId()) {
+                    project1.setCreatedAt(tmp.get(i).getCreatedAt());
+                    tmp.remove(tmp.get(i));
+                }
+            }
+
+            project1.setName(project.getName());
+            project1.setComment(project.getComment());
+            project1.setSubject_id(project.getSubject_id());
+            setModificationInformation(project1);
+            System.err.println(project1);
+        } else {
+            project1 = new Project();
+            project1.setName(project.getName());
+            project1.setComment(project.getComment());
+            project1.setSubject_id(project.getSubject_id());
+            setCreationInformation(project1);
+        }
+
+        tmp.add(project1);
         subjectService.getSubjectsById(project.getSubject_id()).setProjects(tmp);
-        if (project.getCreatedAt() == null)
-            setCreationInformation(project);
-        else
-            setModificationInformation(project);
-        projectRepository.save(project);
+
+        projectRepository.save(project1);
     }
+
 
     @Transactional
     public void delete(int id) {

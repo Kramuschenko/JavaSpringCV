@@ -1,6 +1,9 @@
 package com.cv.demo.db;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
@@ -28,12 +31,13 @@ public class Subject {
     private String teacher;
 
     @OneToMany(
-            cascade = CascadeType.MERGE,
+            cascade = CascadeType.PERSIST,
             orphanRemoval = true
     )
     @JoinColumn(name = "SUBJECT_ID")
     @ToString.Exclude
     private List<Project> projects = new ArrayList<>();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
