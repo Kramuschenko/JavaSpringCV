@@ -2,10 +2,8 @@ package com.cv.demo.controllers;
 
 import com.cv.demo.Services.ProjectService;
 import com.cv.demo.Services.SubjectService;
-import com.cv.demo.db.Project;
 import com.cv.demo.db.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,9 +12,6 @@ import java.util.List;
 public class SubjectController {
     @Autowired
     private SubjectService subjectService;
-
-    @Autowired
-    private ProjectService projectService;
 
     @GetMapping("/subject")
     private List<Subject> getAllProject() {
