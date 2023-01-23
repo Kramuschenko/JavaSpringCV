@@ -24,7 +24,7 @@ public class ProjectController {
 
     @GetMapping("/project/{id}")
     private Project getProject(@PathVariable("id") int id) {
-        return projectService.getProjectsById(id);
+        return projectService.getProjectsById(id).orElse(null);
     }
 
     @DeleteMapping("/project/{id}")
@@ -35,6 +35,6 @@ public class ProjectController {
     @PostMapping("/project")
     private int saveProject(@RequestBody Project project) {
         projectService.saveOrUpdate(project);
-        return project.getId() == 0 ? subjectService.getAllSubjects().size() + projectService.getAllProjects().size() : project.getId() ;
+        return project.getId() == 0 ? subjectService.getAllSubjects().size() + projectService.getAllProjects().size() : project.getId();
     }
 }

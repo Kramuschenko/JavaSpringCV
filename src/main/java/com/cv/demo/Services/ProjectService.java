@@ -2,14 +2,16 @@ package com.cv.demo.Services;
 
 import com.cv.demo.db.Project;
 import com.cv.demo.db.Repository.ProjectRepository;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@Log4j2
 public class ProjectService {
 
     @Autowired
@@ -22,45 +24,20 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    public Project getProjectsById(int id) {
-        if (projectRepository.findById(id).isPresent())
-            return projectRepository.findById(id).get();
-        else
-            return null;
+    public Optional<Project> getProjectsById(int id) {
+        return projectRepository.findById(id);
     }
 
     @Transactional
     public void saveOrUpdate(Project project) {
-        List<Project> tmp = subjectService.getSubjectsById(project.getSubject_id()).getProjects();
+        Project projectDb = getProjectsById(project.getId())
+                .orElseGet(Project::new);
 
-        Project project1 = getProjectsById(project.getId());
-
-        if (project1 != null) {
-            for (int i = 0; i < tmp.size(); i++) {
-                if (tmp.get(i).getId() == project1.getId()) {
-                    project1.setCreatedAt(tmp.get(i).getCreatedAt());
-                    tmp.remove(tmp.get(i));
-                }
-            }
-
-            project1.setName(project.getName());
-            project1.setComment(project.getComment());
-            project1.setSubject_id(project.getSubject_id());
-            setModificationInformation(project1);
-        } else {
-            project1 = new Project();
-            project1.setName(project.getName());
-            project1.setComment(project.getComment());
-            project1.setSubject_id(project.getSubject_id());
-            setCreationInformation(project1);
-        }
-
-        tmp.add(project1);
-        subjectService.getSubjectsById(project1.getSubject_id()).setProjects(tmp);
-
-        System.gc();
-
-        projectRepository.save(project1);
+        projectDb.setName(project.getName());
+        projectDb.setComment(project.getComment());
+        projectDb.setSubjectId(project.getSubjectId());
+        log.atInfo().log("Project {} has been created or updated", projectDb.getId());
+        projectRepository.save(projectDb);
     }
 
 
@@ -69,11 +46,4 @@ public class ProjectService {
         projectRepository.deleteById(id);
     }
 
-    public static void setCreationInformation(Project project) {
-        project.setCreatedAt(LocalDateTime.now());
-    }
-
-    public static void setModificationInformation(Project project) {
-        project.setModifiedAt(LocalDateTime.now());
-    }
 }

@@ -1,0 +1,58 @@
+{
+    {
+        "id": null,
+        "name": "Chess",
+        "comment": "==||==",
+        "subject_id": 1
+    },
+
+    {
+        "id": null,
+        "name": "Chinczyk",
+        "comment": "==||==",
+        "subject_id": 1
+    },
+
+    {
+        "id": null,
+        "name": "Towary",
+        "comment": "praca z plikami",
+        "subject_id": 1
+    },
+
+    {
+        "id": null,
+        "name": "Swing app",
+        "comment": "==||==",
+        "subject_id": 2
+    },
+
+    {
+        "id": null,
+        "name": "First graphic app",
+        "comment": "==||==",
+        "subject_id": 2
+    },
+
+    {
+        "id": null,
+        "name": "Lambdas",
+        "comment": "praca z lambdami",
+        "subject_id": 3
+    },
+
+    {
+        "id": null,
+        "name": "Data app",
+        "comment": "==||==",
+        "subject_id": 3
+    },
+
+    {
+        "id": null,
+        "name": "Translator",
+        "comment": "==||==",
+        "subject_id": 3
+    }
+
+}

@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -30,13 +32,15 @@ public class Project {
     private String comment;
 
     @Column(name = "CREATED_AT", columnDefinition = "TIMESTAMP(3)")
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column(name = "MODIFIED_AT", columnDefinition = "TIMESTAMP(3)")
+    @UpdateTimestamp
     private LocalDateTime modifiedAt;
 
     @Column(name = "SUBJECT_ID")
-    private int subject_id;
+    private int subjectId;
 
     @Override
     public boolean equals(Object o) {
