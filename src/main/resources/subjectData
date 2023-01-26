@@ -1,4 +1,4 @@
-{
+[
     {
         "id": null,
         "abbreviation": "PPJ",
@@ -14,4 +14,4 @@
         "abbreviation": "UTP",
         "teacher": "Barteczko"
     }
-}
+]

@@ -4,7 +4,6 @@ import com.cv.demo.backend.Project;
 import com.cv.demo.backend.repository.ProjectRepository;
 import com.cv.demo.exception.MissingProjectDataException;
 import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,21 +35,20 @@ public class ProjectService {
         int projectId = project.getId();
 
         if (project.getName() == null) {
-            log.error( "{} Project {} name is null", projectId == 0 ? "New" : "", projectId == 0 ? "" : projectId);
+            log.error("{} Project {} name is null", projectId == 0 ? "New" : "", projectId == 0 ? "" : projectId);
             throw new MissingProjectDataException(("Name of project can't be null : " + (projectId == 0 ? "New project" : projectId)));
         } else if (project.getSubjectId() == 0) {
-            log.error( "{} Subject id in project {} is 0", projectId == 0 ? "New" : "", projectId == 0 ? "" : projectId);
+            log.error("{} Subject id in project {} is 0", projectId == 0 ? "New" : "", projectId == 0 ? "" : projectId);
             throw new MissingProjectDataException(("Project must have subject id : " + (projectId == 0 ? "New project" : projectId)));
         }
 
 
-        Project projectDb = getProjectById(projectId)
-                .orElseGet(Project::new);
+        Project projectDb = getProjectById(projectId).orElseGet(Project::new);
 
         projectDb.setName(project.getName());
         projectDb.setComment(project.getComment());
         projectDb.setSubjectId(project.getSubjectId());
-        log.info( "Project {} has been created or updated", projectId == 0 ? "New project" : projectId);
+        log.info("Project {} has been created or updated", projectId == 0 ? "\"New\"" : projectId);
         projectRepository.save(projectDb);
     }
 

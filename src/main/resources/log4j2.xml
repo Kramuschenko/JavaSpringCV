@@ -1,36 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration monitorInterval="30">
+<Configuration monitorInterval="30" shutdownHook="disable">
     <Properties>
         <Property name="LOG_PATTERN">
             %highlight{%d{HH:mm:ss.SSS} %-5level %logger{36}.%M() @%L - %msg%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=light green, DEBUG=cyan, TRACE=blue}        </Property>
     </Properties>
+
     <Appenders>
-        <Console name="ConsoleAppender" target="SYSTEM_OUT" follow="true">
+        <Console name="consoleAppender" target="SYSTEM_OUT" >
             <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY" />
+            </Filters>
         </Console>
-        <File name="accessFileLog" fileName="logs/test.log" append="false">
-            <PatternLayout pattern="%d %m%n"/>
+
+        <File name="debugFileLog" fileName="src/main/resources/logs/debug.log" append="false">
+            <PatternLayout pattern="%d %-5level %m%n"/>
+            <Filters>
+                <ThresholdFilter level="ALL" onMatch="ACCEPT" onMismatch="DENY" />
+            </Filters>
         </File>
+
+        <File name="infoFileLog" fileName="src/main/resources/logs/info.log" append="false">
+            <PatternLayout pattern="%d %-5level %m%n"/>
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY" />
+            </Filters>
+        </File>
+
+        <File name="errorFileLog" fileName="src/main/resources/logs/errors.log" append="false">
+            <PatternLayout pattern="%d %-5level %m%n"/>
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY" />
+            </Filters>
+        </File>
+
     </Appenders>
 
     <Loggers>
-        <Logger name="com.cv.demo" level="debug" additivity="false">
-            <AppenderRef ref="ConsoleAppender" />
+        <Logger name="com.cv.demo" additivity="false" level="debug">
+            <AppenderRef ref="debugFileLog"/>
+            <AppenderRef ref="infoFileLog"/>
+            <AppenderRef ref="errorFileLog"/>
+            <AppenderRef ref="consoleAppender" />
         </Logger>
 
-        <Root level="info">
-            <AppenderRef ref="ConsoleAppender" />
+
+
+        <Root level="DEBUG">
+            <AppenderRef ref="debugFileLog"/>
+            <AppenderRef ref="infoFileLog"/>
+            <AppenderRef ref="errorFileLog"/>
+            <AppenderRef ref="consoleAppender" />
         </Root>
+   </Loggers>
 
-        <!--<Logger name="com.cv.demo.service" level="error" additivity="false">
-            <AppenderRef ref="accessFileLog" />
-        </Logger>
-
-        <Root level="error">
-            <AppenderRef ref="accessFileLog"/>
-        </Root>-->
-
-
-
-    </Loggers>
 </Configuration>

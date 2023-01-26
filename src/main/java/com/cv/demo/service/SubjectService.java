@@ -4,7 +4,6 @@ import com.cv.demo.backend.Subject;
 import com.cv.demo.backend.repository.SubjectRepository;
 import com.cv.demo.exception.MissingSubjectDataException;
 import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +44,7 @@ public class SubjectService {
         subjectDb.setTeacher(subject.getTeacher());
         subjectDb.setAbbreviation(subject.getAbbreviation());
         subjectDb.setProjects(subject.getProjects());
-        log.info("Subject {} has been created or updated", subjectId == 0 ? "New" : subjectId);
+        log.info("Subject {} has been created or updated", subjectId == 0 ? "\"New\"" : subjectId);
         subjectRepository.save(subjectDb);
     }
 

@@ -2,16 +2,18 @@ package com.cv.demo.frontend;
 
 import com.cv.demo.backend.Project;
 import com.cv.demo.exception.MissingProjectDataException;
-import com.cv.demo.responcestatus.ServerResponse;
 import com.cv.demo.service.ProjectService;
 import com.cv.demo.service.SubjectService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@Log4j2
 public class ProjectController {
 
     @Autowired
@@ -36,11 +38,11 @@ public class ProjectController {
     }
 
     @PostMapping("/project")
-    private @ResponseBody ResponseEntity<ServerResponse> saveProject(@RequestBody Project project) throws MissingProjectDataException {
+    private @ResponseBody ResponseEntity<String> saveProject(@RequestBody Project project) throws MissingProjectDataException {
 
         projectService.saveOrUpdate(project);
         String answer = "Project: " + (project.getId() == 0 ? subjectService.getAllSubjects().size() + projectService.getAllProjects().size() : project.getId()) + " added or updated";
-        return new ServerResponse().successNotification(answer);
-
+        log.debug("Success: " + (project.getId() == 0 ? "Project created" : "Project updated (" + project.getId() + ")"));
+        return new ResponseEntity<>(answer, HttpStatus.OK);
     }
 }
