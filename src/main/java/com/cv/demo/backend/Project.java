@@ -1,4 +1,4 @@
-package com.cv.demo.db;
+package com.cv.demo.backend;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,12 @@
-package com.cv.demo.controllers;
+package com.cv.demo.frontend;
 
-import com.cv.demo.Services.SubjectService;
-import com.cv.demo.db.Subject;
+import com.cv.demo.backend.Subject;
+import com.cv.demo.exception.MissingSubjectDataException;
+import com.cv.demo.responcestatus.ServerResponse;
+import com.cv.demo.service.ProjectService;
+import com.cv.demo.service.SubjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +17,9 @@ public class SubjectController {
     @Autowired
     private SubjectService subjectService;
 
+    @Autowired
+    private ProjectService projectService;
+
     @GetMapping("/subject")
     private List<Subject> getAllSubjects() {
         return subjectService.getAllSubjects();
@@ -20,7 +27,7 @@ public class SubjectController {
 
     @GetMapping("/subject/id/{id}")
     private Subject getSubject(@PathVariable("id") int id) {
-        return subjectService.getSubjectById(id);
+        return subjectService.getSubjectById(id).orElse(null);
     }
 
     @DeleteMapping("/subject/id/{id}")
@@ -29,9 +36,11 @@ public class SubjectController {
     }
 
     @PostMapping("/subject")
-    private int saveSubject(@RequestBody Subject subject) {
+    private @ResponseBody ResponseEntity<ServerResponse> saveSubject(@RequestBody Subject subject) throws MissingSubjectDataException {
+
         subjectService.saveOrUpdate(subject);
-        return subject.getId();
+        String answer = "Subject: " + (subject.getId() == 0 ? subjectService.getAllSubjects().size() + projectService.getAllProjects().size() : subject.getId()) + " added or updated";
+        return new ServerResponse().successNotification(answer);
     }
 
     @GetMapping("/subject/teacher/{teacherName}")

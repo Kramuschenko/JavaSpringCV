@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="30">
+    <Properties>
+        <Property name="LOG_PATTERN">
+            %highlight{%d{HH:mm:ss.SSS} %-5level %logger{36}.%M() @%L - %msg%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=light green, DEBUG=cyan, TRACE=blue}        </Property>
+    </Properties>
+    <Appenders>
+        <Console name="ConsoleAppender" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+        <File name="accessFileLog" fileName="logs/test.log" append="false">
+            <PatternLayout pattern="%d %m%n"/>
+        </File>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.cv.demo" level="debug" additivity="false">
+            <AppenderRef ref="ConsoleAppender" />
+        </Logger>
+
+        <Root level="info">
+            <AppenderRef ref="ConsoleAppender" />
+        </Root>
+
+        <!--<Logger name="com.cv.demo.service" level="error" additivity="false">
+            <AppenderRef ref="accessFileLog" />
+        </Logger>
+
+        <Root level="error">
+            <AppenderRef ref="accessFileLog"/>
+        </Root>-->
+
+
+
+    </Loggers>
+</Configuration>

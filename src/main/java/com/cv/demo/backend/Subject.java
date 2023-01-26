@@ -1,12 +1,15 @@
-package com.cv.demo.db;
+package com.cv.demo.backend;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -37,6 +40,14 @@ public class Subject {
     @JoinColumn(name = "SUBJECT_ID")
     @ToString.Exclude
     private List<Project> projects = new ArrayList<>();
+
+    @Column(name = "CREATED_AT", columnDefinition = "TIMESTAMP(3)")
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @Column(name = "MODIFIED_AT", columnDefinition = "TIMESTAMP(3)")
+    @UpdateTimestamp
+    private LocalDateTime modifiedAt;
 
     @Override
     public boolean equals(Object o) {

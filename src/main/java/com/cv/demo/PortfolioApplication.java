@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "", produces = {"application/json", "text/xml"})
 public class PortfolioApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(PortfolioApplication.class, args);
     }
