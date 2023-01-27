@@ -1,9 +1,8 @@
 package com.cv.demo.frontend;
 
-import com.cv.demo.backend.Project;
+import com.cv.demo.dto.ProjectDto;
 import com.cv.demo.exception.MissingProjectDataException;
 import com.cv.demo.service.ProjectService;
-import com.cv.demo.service.SubjectService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,30 +18,30 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
-    @Autowired
-    private SubjectService subjectService;
-
     @GetMapping("/project")
-    private List<Project> getAllProject() {
+    private List<ProjectDto> getAllProject() {
         return projectService.getAllProjects();
     }
 
     @GetMapping("/project/{id}")
-    private Project getProject(@PathVariable("id") int id) {
+    private ProjectDto getProject(@PathVariable("id") int id) {
         return projectService.getProjectById(id).orElse(null);
     }
 
     @DeleteMapping("/project/{id}")
-    private void deleteProject(@PathVariable("id") int id) {
+    private @ResponseBody ResponseEntity<String> deleteProject(@PathVariable("id") int id) {
+        log.info("Subject {} will be deleted", id);
         projectService.delete(id);
+        return new ResponseEntity<>("Subject deleted", HttpStatus.OK);
     }
 
     @PostMapping("/project")
-    private @ResponseBody ResponseEntity<String> saveProject(@RequestBody Project project) throws MissingProjectDataException {
+    private @ResponseBody ResponseEntity<String> saveProject(@RequestBody ProjectDto projectDto) throws MissingProjectDataException {
 
-        projectService.saveOrUpdate(project);
-        String answer = "Project: " + (project.getId() == 0 ? subjectService.getAllSubjects().size() + projectService.getAllProjects().size() : project.getId()) + " added or updated";
-        log.debug("Success: " + (project.getId() == 0 ? "Project created" : "Project updated (" + project.getId() + ")"));
+        projectService.saveOrUpdate(projectDto);
+        String answer = "Project: " + (projectDto.getId() == 0 ?
+                projectService.getAllProjects().size() + " added" : projectDto.getId() + " updated");
+        log.debug("Success: " + (projectDto.getId() == 0 ? "Project created" : "Project updated (" + projectDto.getId() + ")"));
         return new ResponseEntity<>(answer, HttpStatus.OK);
     }
 }

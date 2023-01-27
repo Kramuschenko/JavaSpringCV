@@ -1,6 +1,7 @@
 package com.cv.demo.frontend;
 
-import com.cv.demo.backend.Subject;
+import com.cv.demo.dto.SubjectDto;
+import com.cv.demo.exception.DeletingProjectException;
 import com.cv.demo.exception.MissingSubjectDataException;
 import com.cv.demo.service.ProjectService;
 import com.cv.demo.service.SubjectService;
@@ -23,36 +24,39 @@ public class SubjectController {
     private ProjectService projectService;
 
     @GetMapping("/subject")
-    private List<Subject> getAllSubjects() {
+    private List<SubjectDto> getAllSubjects() {
         return subjectService.getAllSubjects();
     }
 
     @GetMapping("/subject/id/{id}")
-    private Subject getSubject(@PathVariable("id") int id) {
+    private SubjectDto getSubject(@PathVariable("id") int id) {
         return subjectService.getSubjectById(id).orElse(null);
     }
 
     @DeleteMapping("/subject/id/{id}")
-    private void deleteSubject(@PathVariable("id") int id) {
+    private @ResponseBody ResponseEntity<String> deleteSubject(@PathVariable("id") int id) throws DeletingProjectException {
+        log.info("Subject {} will be deleted", id);
         subjectService.delete(id);
+        return new ResponseEntity<>("Subject deleted", HttpStatus.OK);
     }
 
     @PostMapping("/subject")
-    private @ResponseBody ResponseEntity<String> saveSubject(@RequestBody Subject subject) throws MissingSubjectDataException {
-
-        subjectService.saveOrUpdate(subject);
-        String answer = "Subject: " + (subject.getId() == 0 ? subjectService.getAllSubjects().size() + projectService.getAllProjects().size() : subject.getId()) + " added or updated";
-        log.debug("Success: " + (subject.getId() == 0 ? "Subject created" : "Subject updated (" + subject.getId() + ")"));
+    private @ResponseBody ResponseEntity<String> saveSubject(@RequestBody SubjectDto subjectDto) throws MissingSubjectDataException {
+        log.info(subjectDto);
+        subjectService.saveOrUpdate(subjectDto);
+        String answer = "Subject: " + (subjectDto.getId() == 0 ?
+                subjectService.getAllSubjects().size() + " added" : subjectDto.getId() + " updated");
+        log.info("Success: " + (subjectDto.getId() == 0 ? "Subject created" : "Subject updated (" + subjectDto.getId() + ")"));
         return new ResponseEntity<>(answer, HttpStatus.OK);
     }
 
     @GetMapping("/subject/teacher/{teacherName}")
-    private Subject firstByTeacher(@PathVariable("teacherName") String teacher) {
+    private SubjectDto firstByTeacher(@PathVariable("teacherName") String teacher) {
         return subjectService.firstByTeacher(teacher);
     }
 
     @GetMapping("/subject/teacher/all/{teacherName}")
-    private List<Subject> subjectsByTeacher(@PathVariable("teacherName") String teacher) {
+    private List<SubjectDto> subjectsByTeacher(@PathVariable("teacherName") String teacher) {
         return subjectService.subjectsByTeacher(teacher);
     }
 }
