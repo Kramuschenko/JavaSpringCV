@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class SubjectDto {
-    private int id;
+    private Integer id;
     private String abbreviation;
     private String teacher;
 

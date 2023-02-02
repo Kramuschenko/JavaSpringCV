@@ -16,4 +16,7 @@ public interface SubjectRepository extends JpaRepository<Subject, Integer> {
 
     /*@Query(value = "SELECT SUBJECT.ID AS SUBJECT_ID , PROJECT.ID AS PROJECT_ID , ABBREVIATION, NAME , COMMENT  , TEACHER FROM SUBJECT INNER JOIN PROJECT ON SUBJECT.ID = PROJECT.SUBJECT_ID")
     List<Subject> findAll();*/
+
+    @Query(value = "select  NVL(MAX(ID)+1 , 0) from SUBJECT", nativeQuery = true)
+    int generateNextSubjectId();
 }

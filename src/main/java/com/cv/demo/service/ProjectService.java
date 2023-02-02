@@ -5,6 +5,7 @@ import com.cv.demo.backend.Project;
 import com.cv.demo.backend.repository.ProjectRepository;
 import com.cv.demo.dto.ProjectDto;
 import com.cv.demo.exception.MissingProjectDataException;
+import com.cv.demo.exception.ProjectNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class ProjectService {
     private final ProjectAssembler projectAssembler = Mappers.getMapper(ProjectAssembler.class);
 
     @Autowired
-    ProjectRepository projectRepository;
+    public ProjectRepository projectRepository;
 
     public List<ProjectDto> getAllProjects() {
         return projectRepository.findAll().stream().map(projectAssembler::toDto).collect(Collectors.toList());
@@ -41,6 +42,12 @@ public class ProjectService {
 
         Project projectDb = projectRepository.findById(projectId).orElseGet(Project::new);
 
+        if (projectId == 0) {
+            projectDb.setId(projectRepository.generateNextProjectId());
+        } else {
+            projectDb.setId(projectDto.getId());
+        }
+
         projectDb.setName(projectDto.getName());
         projectDb.setComment(projectDto.getComment());
         projectDb.setSubjectId(projectDto.getSubjectId());
@@ -52,16 +59,21 @@ public class ProjectService {
         int projectId = projectDto.getId();
         if (projectDto.getName() == null) {
             log.error("{} Project {} name is null", projectId == 0 ? "New" : "", projectId == 0 ? "" : projectId);
-            throw new MissingProjectDataException(("Name of project can't be null : " + (projectId == 0 ? "New project" : projectId)));
+            throw new MissingProjectDataException(("Name of project can't be null : " + (projectId == 0 ? "New project\n" : projectId)));
         } else if (projectDto.getSubjectId() == 0) {
             log.error("{} Subject id in project {} is 0", projectId == 0 ? "New" : "", projectId == 0 ? "" : projectId);
-            throw new MissingProjectDataException(("Project must have subject id : " + (projectId == 0 ? "New project" : projectId)));
+            throw new MissingProjectDataException(("Project must have subject id : " + (projectId == 0 ? "New project\n" : projectId)));
         }
     }
 
 
     @Transactional
-    public void delete(int id) {
+    public void delete(int id) throws ProjectNotFoundException {
+
+        if (!projectRepository.findById(id).isPresent()) {
+            throw new ProjectNotFoundException();
+        }
+
         log.info("Project {} was deleted", id);
         projectRepository.deleteById(id);
     }

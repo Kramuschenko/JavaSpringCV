@@ -21,7 +21,6 @@ import java.util.Objects;
 public class Project {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false)
     private int id;
 
@@ -40,7 +39,7 @@ public class Project {
     private LocalDateTime modifiedAt;
 
     @Column(name = "SUBJECT_ID")
-    private int subjectId;
+    private Integer subjectId;
 
     @Override
     public boolean equals(Object o) {

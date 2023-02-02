@@ -1,9 +1,11 @@
 package com.cv.demo.frontend;
 
+import com.cv.demo.backend.Subject;
 import com.cv.demo.dto.SubjectDto;
-import com.cv.demo.exception.DeletingProjectException;
+import com.cv.demo.exception.DeletingArchiveSubjectException;
 import com.cv.demo.exception.MissingSubjectDataException;
-import com.cv.demo.service.ProjectService;
+import com.cv.demo.exception.SubjectNotFoundException;
+import com.cv.demo.exception.UpdatingArchiveSubjectException;
 import com.cv.demo.service.SubjectService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +22,6 @@ public class SubjectController {
     @Autowired
     private SubjectService subjectService;
 
-    @Autowired
-    private ProjectService projectService;
-
     @GetMapping("/subject")
     private List<SubjectDto> getAllSubjects() {
         return subjectService.getAllSubjects();
@@ -34,20 +33,54 @@ public class SubjectController {
     }
 
     @DeleteMapping("/subject/id/{id}")
-    private @ResponseBody ResponseEntity<String> deleteSubject(@PathVariable("id") int id) throws DeletingProjectException {
+    private @ResponseBody ResponseEntity<String> deleteSubject(@PathVariable("id") int id) throws SubjectNotFoundException, DeletingArchiveSubjectException {
         log.info("Subject {} will be deleted", id);
         subjectService.delete(id);
         return new ResponseEntity<>("Subject deleted", HttpStatus.OK);
     }
 
     @PostMapping("/subject")
-    private @ResponseBody ResponseEntity<String> saveSubject(@RequestBody SubjectDto subjectDto) throws MissingSubjectDataException {
+    private @ResponseBody ResponseEntity<String> saveSubject(@RequestBody SubjectDto subjectDto) throws MissingSubjectDataException, UpdatingArchiveSubjectException {
         log.info(subjectDto);
-        subjectService.saveOrUpdate(subjectDto);
-        String answer = "Subject: " + (subjectDto.getId() == 0 ?
-                subjectService.getAllSubjects().size() + " added" : subjectDto.getId() + " updated");
-        log.info("Success: " + (subjectDto.getId() == 0 ? "Subject created" : "Subject updated (" + subjectDto.getId() + ")"));
+        Subject subject = subjectService.saveOrUpdate(subjectDto);
+        Integer subjectId = subject.getId();
+        Integer subjectDtoId = subjectDto.getId();
+        if (String.valueOf(subjectDtoId).equals("0")) {
+            throw new UpdatingArchiveSubjectException();
+        } else {
+            String answer = "Subject: " + (subjectDtoId == null ?
+                    subjectService.getAllSubjects().size() + " added" : subjectId + " updated");
+            log.info("Success: " + (subjectDtoId == null ? "Subject created" : "Subject updated (" + subjectId + ")"));
+            return new ResponseEntity<>(answer, HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("/subjects")
+    private @ResponseBody ResponseEntity<String> saveSubjects(@RequestBody List<SubjectDto> subjectsDto) throws UpdatingArchiveSubjectException, MissingSubjectDataException {
+
+        int size = subjectsDto.size();
+        for (int i = 0; i < size; i++) {
+            try {
+                saveSubject(subjectsDto.get(i));
+                log.info("Subject {} of {} saved successfully", (i + 1), size);
+            } catch (UpdatingArchiveSubjectException | MissingSubjectDataException e) {
+                errorsLog(subjectsDto, i, e);
+                throw e;
+            }
+        }
+
+        String answer = "Subjects added or updated";
         return new ResponseEntity<>(answer, HttpStatus.OK);
+    }
+
+    private static void errorsLog(List<SubjectDto> subjectsDto, int i, Exception e) {
+
+        if (i > 0) {
+            log.error(e + "were saved only {} elements ", (i));
+            log.error("Were saved only that items: " + subjectsDto.subList(0, i));
+        } else {
+            log.error("Subjects were not saved");
+        }
     }
 
     @GetMapping("/subject/teacher/{teacherName}")

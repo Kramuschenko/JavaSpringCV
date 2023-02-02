@@ -1,6 +1,5 @@
-package com.cv.demo;
+package com.cv.demo.assembler;
 
-import com.cv.demo.assembler.ProjectAssembler;
 import com.cv.demo.backend.Project;
 import com.cv.demo.dto.ProjectDto;
 import org.junit.jupiter.api.Assertions;

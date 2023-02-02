@@ -1,6 +1,5 @@
-package com.cv.demo;
+package com.cv.demo.assembler;
 
-import com.cv.demo.assembler.SubjectAssembler;
 import com.cv.demo.backend.Subject;
 import com.cv.demo.dto.SubjectDto;
 import org.junit.jupiter.api.Assertions;
@@ -15,13 +14,16 @@ class SubjectAssemblerTest {
 
     @Test
     public void subjectDtoToSubjectTest() {
+        //given
         SubjectDto dto = new SubjectDto();
         dto.setId(1);
         dto.setAbbreviation("John");
         dto.setTeacher("Tomasz");
 
+        //when
         Subject entity = mapper.fromDto(dto);
 
+        //then
         assertEquals(entity.getId(), dto.getId());
         assertEquals(entity.getAbbreviation(), dto.getAbbreviation());
         assertEquals(entity.getTeacher(), dto.getTeacher());
@@ -29,13 +31,17 @@ class SubjectAssemblerTest {
 
     @Test
     public void subjectToSubjectDtoTest() {
+
+        //Given
         Subject entity = new Subject();
         entity.setId(1);
         entity.setAbbreviation("John");
         entity.setTeacher("Tomasz");
 
+        //when
         SubjectDto dto = mapper.toDto(entity);
 
+        //then
         assertEquals(entity.getId(), dto.getId());
         assertEquals(entity.getAbbreviation(), dto.getAbbreviation());
         assertEquals(entity.getTeacher(), dto.getTeacher());
@@ -43,10 +49,13 @@ class SubjectAssemblerTest {
 
     @Test
     public void shouldHandleNullSubject() {
+        //given
         Subject subject = null;
 
+        //when
         SubjectDto subjectDto = mapper.toDto(subject);
 
+        //then
         Assertions.assertNull(subjectDto);
     }
 

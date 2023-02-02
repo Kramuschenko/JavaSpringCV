@@ -18,14 +18,12 @@ import java.util.Objects;
 @Setter
 @ToString
 @RequiredArgsConstructor
-@SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 @Entity
 @Table(name = "SUBJECT")
 public class Subject {
     @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
-    @Column(name = "ID", nullable = false)
-    private int id;
+    @Column(name = "ID")
+    private Integer id;
 
     @Column(name = "ABBREVIATION")
     private String abbreviation;
@@ -33,7 +31,7 @@ public class Subject {
     @Column(name = "TEACHER")
     private String teacher;
 
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "SUBJECT_ID")
     @ToString.Exclude
     private List<Project> projects = new ArrayList<>();
@@ -59,9 +57,4 @@ public class Subject {
         return getClass().hashCode();
     }
 
-    /*ublic void setProjects(List<Project> projects) {
-        this.projects.clear();
-        if (projects != null)
-            this.projects.addAll(projects);
-    }*/
 }
