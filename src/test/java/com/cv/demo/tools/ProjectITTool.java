@@ -14,22 +14,22 @@ public class ProjectITTool {
     private ProjectRepository projectRepository;
 
     @Transactional
-    public Project createProject(int id, String name) {
+    public Project createProject(Integer id, String name) {
         return createProject(id, name, null, null, null, null);
     }
 
     @Transactional
-    public Project createProject(int id, String name, int subjectId) {
+    public Project createProject(Integer id, String name, Integer subjectId) {
         return createProject(id, name, subjectId, null, null, null);
     }
 
     @Transactional
-    public Project createProject(int id, String name, int subjectId, String comment) {
+    public Project createProject(Integer id, String name, Integer subjectId, String comment) {
         return createProject(id, name, subjectId, comment, null, null);
     }
 
     @Transactional
-    public Project createProject(int id, String name, Integer subjectId, String comment, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    public Project createProject(Integer id, String name, Integer subjectId, String comment, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         Project project = new Project();
         project.setId(id);
         project.setComment(comment);

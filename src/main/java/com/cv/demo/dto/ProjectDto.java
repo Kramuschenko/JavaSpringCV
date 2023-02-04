@@ -4,9 +4,9 @@ import lombok.Data;
 
 @Data
 public class ProjectDto {
-    private int id;
+    private Integer id;
     private String name;
     private String comment;
-    private int subjectId;
+    private Integer subjectId;
 
 }

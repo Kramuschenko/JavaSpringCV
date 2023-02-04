@@ -1,11 +1,9 @@
 package com.cv.demo.frontend;
 
 import com.cv.demo.backend.Subject;
+import com.cv.demo.backend.repository.Information;
 import com.cv.demo.dto.SubjectDto;
-import com.cv.demo.exception.DeletingArchiveSubjectException;
-import com.cv.demo.exception.MissingSubjectDataException;
-import com.cv.demo.exception.SubjectNotFoundException;
-import com.cv.demo.exception.UpdatingArchiveSubjectException;
+import com.cv.demo.exception.*;
 import com.cv.demo.service.SubjectService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +31,7 @@ public class SubjectController {
     }
 
     @DeleteMapping("/subject/id/{id}")
-    private @ResponseBody ResponseEntity<String> deleteSubject(@PathVariable("id") int id) throws SubjectNotFoundException, DeletingArchiveSubjectException {
+    private @ResponseBody ResponseEntity<String> deleteSubject(@PathVariable("id") int id) throws SubjectNotFoundException, DeletingArchiveSubjectException, ArchiveSubjectNotFoundException {
         log.info("Subject {} will be deleted", id);
         subjectService.delete(id);
         return new ResponseEntity<>("Subject deleted", HttpStatus.OK);
@@ -83,13 +81,13 @@ public class SubjectController {
         }
     }
 
-    @GetMapping("/subject/teacher/{teacherName}")
-    private SubjectDto firstByTeacher(@PathVariable("teacherName") String teacher) {
-        return subjectService.firstByTeacher(teacher);
-    }
-
     @GetMapping("/subject/teacher/all/{teacherName}")
     private List<SubjectDto> subjectsByTeacher(@PathVariable("teacherName") String teacher) {
         return subjectService.subjectsByTeacher(teacher);
+    }
+
+    @GetMapping("/subjects-projects")
+    private List<String> getAllAndGroup() {
+        return subjectService.getAllAndGroup();
     }
 }

@@ -14,30 +14,17 @@ public class ProjectAssemblerTest {
 
     @Test
     public void projectDtoToProjectTest() {
+        //given
         ProjectDto dto = new ProjectDto();
         dto.setId(1);
         dto.setName("John");
-        dto.setComment("John");
-        dto.setSubjectId(1);
+        dto.setComment("Clerk");
+        dto.setSubjectId(2);
 
+        //when
         Project entity = mapper.fromDto(dto);
 
-        assertEquals(entity.getId(), dto.getId());
-        assertEquals(entity.getName(), dto.getName());
-        assertEquals(entity.getComment(), dto.getComment());
-        assertEquals(entity.getSubjectId(), dto.getSubjectId());
-    }
-
-    @Test
-    public void projectToProjectDtoTest() {
-        Project entity = new Project();
-        entity.setId(1);
-        entity.setName("John");
-        entity.setComment("John");
-        entity.setSubjectId(1);
-
-        ProjectDto dto = mapper.toDto(entity);
-
+        //then
         assertEquals(dto.getId(), entity.getId());
         assertEquals(dto.getName(), entity.getName());
         assertEquals(dto.getComment(), entity.getComment());
@@ -45,11 +32,45 @@ public class ProjectAssemblerTest {
     }
 
     @Test
-    public void shouldHandleNullProject() {
+    public void projectToProjectDtoTest() {
+        //given
+        Project entity = new Project();
+        entity.setId(1);
+        entity.setName("John");
+        entity.setComment("Clerk");
+        entity.setSubjectId(2);
+
+        //when
+        ProjectDto dto = mapper.toDto(entity);
+
+        //then
+        assertEquals(entity.getId(), dto.getId());
+        assertEquals(entity.getName(), dto.getName());
+        assertEquals(entity.getComment(), dto.getComment());
+        assertEquals(entity.getSubjectId(), dto.getSubjectId());
+    }
+
+    @Test
+    public void nullProjectToProjectDtoTest() {
+        //given
         Project project = null;
 
+        //when
         ProjectDto projectDto = mapper.toDto(project);
 
+        //then
         Assertions.assertNull(projectDto);
+    }
+
+    @Test
+    public void nullProjectDtoToProjectTest() {
+        //given
+        ProjectDto projectDto = null;
+
+        //when
+        Project project = mapper.fromDto(projectDto);
+
+        //then
+        Assertions.assertNull(project);
     }
 }

@@ -1,5 +1,6 @@
 package com.cv.demo.frontend;
 
+import com.cv.demo.backend.repository.SubjectRepository;
 import com.cv.demo.dto.ProjectDto;
 import com.cv.demo.exception.MissingProjectDataException;
 import com.cv.demo.exception.ProjectNotFoundException;
@@ -15,6 +16,8 @@ import java.util.List;
 @RestController
 @Log4j2
 public class ProjectController {
+    @Autowired
+    private SubjectRepository subjectRepository;
 
     @Autowired
     private ProjectService projectService;
@@ -41,9 +44,9 @@ public class ProjectController {
     private ResponseEntity<String> saveProject(@RequestBody ProjectDto projectDto) throws MissingProjectDataException {
 
         projectService.saveOrUpdate(projectDto);
-        String answer = "Project: " + (projectDto.getId() == 0 ?
+        String answer = "Project: " + (projectDto.getId() == null ?
                 projectService.getAllProjects().size() + " added" : projectDto.getId() + " updated");
-        log.debug("Success: " + (projectDto.getId() == 0 ? "Project created" : "Project updated (" + projectDto.getId() + ")"));
+        log.debug("Success: " + (projectDto.getId() == null ? "Project created" : "Project updated (" + projectDto.getId() + ")"));
         return new ResponseEntity<>(answer, HttpStatus.OK);
     }
 

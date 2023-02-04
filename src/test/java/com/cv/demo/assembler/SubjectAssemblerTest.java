@@ -24,9 +24,9 @@ class SubjectAssemblerTest {
         Subject entity = mapper.fromDto(dto);
 
         //then
-        assertEquals(entity.getId(), dto.getId());
-        assertEquals(entity.getAbbreviation(), dto.getAbbreviation());
-        assertEquals(entity.getTeacher(), dto.getTeacher());
+        assertEquals(dto.getId(), entity.getId());
+        assertEquals(dto.getAbbreviation(), entity.getAbbreviation());
+        assertEquals(dto.getTeacher(), entity.getTeacher());
     }
 
     @Test
@@ -48,7 +48,7 @@ class SubjectAssemblerTest {
     }
 
     @Test
-    public void shouldHandleNullSubject() {
+    public void nullSubjectToSubjectDtoTest() {
         //given
         Subject subject = null;
 
@@ -59,5 +59,16 @@ class SubjectAssemblerTest {
         Assertions.assertNull(subjectDto);
     }
 
+    @Test
+    public void nullSubjectDtoToSubjectTest() {
+        //given
+        SubjectDto subjectDto = null;
+
+        //when
+        Subject subject = mapper.fromDto(subjectDto);
+
+        //then
+        Assertions.assertNull(subject);
+    }
 
 }

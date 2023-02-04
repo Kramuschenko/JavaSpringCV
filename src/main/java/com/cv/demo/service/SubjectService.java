@@ -3,9 +3,11 @@ package com.cv.demo.service;
 import com.cv.demo.assembler.SubjectAssembler;
 import com.cv.demo.backend.Project;
 import com.cv.demo.backend.Subject;
+import com.cv.demo.backend.repository.Information;
 import com.cv.demo.backend.repository.ProjectRepository;
 import com.cv.demo.backend.repository.SubjectRepository;
 import com.cv.demo.dto.SubjectDto;
+import com.cv.demo.exception.ArchiveSubjectNotFoundException;
 import com.cv.demo.exception.DeletingArchiveSubjectException;
 import com.cv.demo.exception.MissingSubjectDataException;
 import com.cv.demo.exception.SubjectNotFoundException;
@@ -39,6 +41,10 @@ public class SubjectService {
         return subjectRepository.findById(id).map(subjectAssembler::toDto);
     }
 
+    public List<String> getAllAndGroup(){
+        return subjectRepository.getAllAndGroup();
+    }
+
     @Transactional
     public Subject saveOrUpdate(SubjectDto subjectDto) throws MissingSubjectDataException {
 
@@ -50,12 +56,28 @@ public class SubjectService {
 
         if (subjectId == null) {
             subject = new Subject();
-            Integer id = subjectRepository.generateNextSubjectId();
-            subjectId = id;
-            subject.setId(id);
+            if (subjectRepository.findAll().size() > 0) {
+                //creating subject with generated id
+                Integer id = subjectRepository.generateNextSubjectId();
+                subjectId = id;
+                subject.setId(id);
+            } else {
+                //creating first subject
+                subjectId = 1;
+                subject.setId(subjectId);
+            }
+
         } else {
-            subject = subjectRepository.findById(subjectId).get();
-            subject.setId(subjectId);
+            if (subjectRepository.findById(subjectId).isPresent()) {
+                //updating subject
+                subject = subjectRepository.findById(subjectId).get();
+                subject.setId(subjectId);
+            } else {
+                //creating subject with specific id
+                subject = new Subject();
+                subject.setId(subjectId);
+            }
+
         }
 
         if (subject.getProjects() == null) {
@@ -77,11 +99,13 @@ public class SubjectService {
     }
 
     @Transactional
-    public void delete(int id) throws SubjectNotFoundException, DeletingArchiveSubjectException {if (id == 0) {
-            throw new DeletingArchiveSubjectException();
-        }
+    public void delete(int id) throws SubjectNotFoundException, DeletingArchiveSubjectException, ArchiveSubjectNotFoundException {
 
         Subject subject = subjectRepository.findById(id).orElseThrow(SubjectNotFoundException::new);
+
+        if (id == 0) {
+            throw new DeletingArchiveSubjectException();
+        }
 
         if (subject.getProjects().isEmpty()) {
             log.info("Subject {} was deleted", id);
@@ -97,27 +121,27 @@ public class SubjectService {
 
     }
 
-    private void moveProjectsToArchive(Subject subject) {
+    private void moveProjectsToArchive(Subject subject) throws ArchiveSubjectNotFoundException {
         List<Project> projectsToReplace = new ArrayList<>(subject.getProjects());
         Optional<Subject> subjectArchive = subjectRepository.findById(0);
 
         subject.getProjects().clear();
         subjectRepository.save(subject);
+        if (subjectArchive.isPresent()) {
+            List<Project> archiveProjects = subjectArchive.get().getProjects();
+            archiveProjects.addAll(projectsToReplace);
+            subjectArchive.get().setProjects(archiveProjects);
 
-        List<Project> archiveProjects = subjectArchive.get().getProjects();
-        archiveProjects.addAll(projectsToReplace);
-        subjectArchive.get().setProjects(archiveProjects);
+            projectRepository.saveAll(archiveProjects);
 
-        projectRepository.saveAll(archiveProjects);
-
-        log.info("Projects replaced: " + archiveProjects);
+            log.info("Projects replaced: " + archiveProjects);
+        } else {
+            log.error("There is no Archive of projects in database");
+            throw new ArchiveSubjectNotFoundException();
+        }
     }
 
     public List<SubjectDto> subjectsByTeacher(String teacher) {
         return subjectRepository.findSubjectsByTeacher(teacher).stream().map(subjectAssembler::toDto).collect(Collectors.toList());
-    }
-
-    public SubjectDto firstByTeacher(String teacher) {
-        return subjectAssembler.toDto(subjectRepository.findFirstByTeacher(teacher));
     }
 }

@@ -36,33 +36,48 @@ public class ProjectService {
     @Transactional
     public void saveOrUpdate(ProjectDto projectDto) throws MissingProjectDataException {
 
-        int projectId = projectDto.getId();
+        Integer projectId = projectDto.getId();
 
         validate(projectDto);
 
-        Project projectDb = projectRepository.findById(projectId).orElseGet(Project::new);
+        Project projectDb;
 
-        if (projectId == 0) {
-            projectDb.setId(projectRepository.generateNextProjectId());
+        if (projectId == null) {
+            projectDb = new Project();
+            if (projectRepository.findAll().size() > 0) {
+                //creating of project with generated ID
+                projectDb.setId(projectRepository.generateNextProjectId());
+            }else {
+                //creating of the first project
+                projectDb.setId(1);
+            }
         } else {
-            projectDb.setId(projectDto.getId());
+            if (projectRepository.findById(projectId).isPresent()) {
+                //updating project
+                projectDb = projectRepository.findById(projectId).get();
+                projectDb.setId(projectDto.getId());
+            }else {
+                //creating project with the specific id
+                projectDb = new Project();
+                projectDb.setId(projectDto.getId());
+            }
         }
 
         projectDb.setName(projectDto.getName());
         projectDb.setComment(projectDto.getComment());
         projectDb.setSubjectId(projectDto.getSubjectId());
-        log.info("Project {}", projectId == 0 ? "\"New\" has been created" : (projectId + " has been updated"));
+        log.info("Project {}", projectId == null ? "\"New\" has been created" : (projectId + " has been updated"));
         projectRepository.save(projectDb);
     }
 
     private void validate(ProjectDto projectDto) throws MissingProjectDataException {
-        int projectId = projectDto.getId();
+        Integer projectId = projectDto.getId();
         if (projectDto.getName() == null) {
-            log.error("{} Project {} name is null", projectId == 0 ? "New" : "", projectId == 0 ? "" : projectId);
-            throw new MissingProjectDataException(("Name of project can't be null : " + (projectId == 0 ? "New project\n" : projectId)));
-        } else if (projectDto.getSubjectId() == 0) {
-            log.error("{} Subject id in project {} is 0", projectId == 0 ? "New" : "", projectId == 0 ? "" : projectId);
-            throw new MissingProjectDataException(("Project must have subject id : " + (projectId == 0 ? "New project\n" : projectId)));
+            log.error("{} Project {} name is null", projectId == null ? "New" : "", projectId == null ? "" : projectId);
+            throw new MissingProjectDataException(("Name of project can't be null : " + (projectId == null ? "New project\n" : projectId)));
+        } else if (projectDto.getSubjectId() == null) {
+            log.error("{} Subject id in project {} is null", projectId == null ? "New" : "", projectId == null ? "" : projectId);
+            throw new MissingProjectDataException(("Project must have subject id : " + (projectId == null ? "New project\n" : projectId)));
         }
     }
 

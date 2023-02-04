@@ -8,7 +8,10 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -22,7 +25,7 @@ public class Project {
 
     @Id
     @Column(name = "ID", nullable = false)
-    private int id;
+    private Integer id;
 
     @Column(name = "NAME")
     private String name;
