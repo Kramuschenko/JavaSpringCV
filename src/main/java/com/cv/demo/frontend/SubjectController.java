@@ -1,10 +1,10 @@
 package com.cv.demo.frontend;
 
 import com.cv.demo.backend.Subject;
-import com.cv.demo.backend.repository.Information;
 import com.cv.demo.dto.SubjectDto;
 import com.cv.demo.exception.*;
 import com.cv.demo.service.SubjectService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,10 +15,10 @@ import java.util.List;
 
 @RestController
 @Log4j2
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class SubjectController {
 
-    @Autowired
-    private SubjectService subjectService;
+    private final SubjectService subjectService;
 
     @GetMapping("/subject")
     private List<SubjectDto> getAllSubjects() {
@@ -26,8 +26,8 @@ public class SubjectController {
     }
 
     @GetMapping("/subject/id/{id}")
-    private SubjectDto getSubject(@PathVariable("id") int id) {
-        return subjectService.getSubjectById(id).orElse(null);
+    private SubjectDto getSubject(@PathVariable("id") int id) throws SubjectNotFoundException {
+        return subjectService.getSubjectById(id);
     }
 
     @DeleteMapping("/subject/id/{id}")
@@ -38,7 +38,7 @@ public class SubjectController {
     }
 
     @PostMapping("/subject")
-    private @ResponseBody ResponseEntity<String> saveSubject(@RequestBody SubjectDto subjectDto) throws MissingSubjectDataException, UpdatingArchiveSubjectException {
+    private @ResponseBody ResponseEntity<String> saveSubject(@RequestBody SubjectDto subjectDto) throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
         log.info(subjectDto);
         Subject subject = subjectService.saveOrUpdate(subjectDto);
         Integer subjectId = subject.getId();
@@ -54,14 +54,14 @@ public class SubjectController {
     }
 
     @PostMapping("/subjects")
-    private @ResponseBody ResponseEntity<String> saveSubjects(@RequestBody List<SubjectDto> subjectsDto) throws UpdatingArchiveSubjectException, MissingSubjectDataException {
+    private @ResponseBody ResponseEntity<String> saveSubjects(@RequestBody List<SubjectDto> subjectsDto) throws UpdatingArchiveSubjectException, MissingSubjectAbbreviationException {
 
         int size = subjectsDto.size();
         for (int i = 0; i < size; i++) {
             try {
                 saveSubject(subjectsDto.get(i));
                 log.info("Subject {} of {} saved successfully", (i + 1), size);
-            } catch (UpdatingArchiveSubjectException | MissingSubjectDataException e) {
+            } catch (UpdatingArchiveSubjectException | MissingSubjectAbbreviationException e) {
                 errorsLog(subjectsDto, i, e);
                 throw e;
             }
@@ -87,7 +87,9 @@ public class SubjectController {
     }
 
     @GetMapping("/subjects-projects")
-    private List<String> getAllAndGroup() {
-        return subjectService.getAllAndGroup();
+    private List<String> getAllSubjectsAndProjects() {
+        return subjectService.getAllSubjectsAndProjects();
     }
+
 }
+

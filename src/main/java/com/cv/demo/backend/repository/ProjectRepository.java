@@ -5,10 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
 
-    @Query(value = "select  MAX(ID)+1 from PROJECT", nativeQuery = true)
+    List<Project> getProjectBySubjectId(Integer subjectId);
+
+    @Query(value = "select  nvl(MAX(ID), 0)+1 from PROJECT", nativeQuery = true)
     int generateNextProjectId();
 
 }

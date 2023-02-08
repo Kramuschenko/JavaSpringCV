@@ -12,11 +12,9 @@ public interface SubjectRepository extends JpaRepository<Subject, Integer> {
 
     List<Subject> findSubjectsByTeacher(String teacher);
 
-    Subject findFirstByTeacher(String teacher);
+    @Query(value = "SELECT SUBJECT.ID AS SUBJECT_ID , PROJECT.ID AS PROJECT_ID , ABBREVIATION, NAME , COMMENT  , TEACHER FROM SUBJECT INNER JOIN PROJECT ON SUBJECT.ID = PROJECT.SUBJECT_ID", nativeQuery = true)
+    List<String> getAllSubjectsAndProjects();
 
-    @Query(value = "SELECT SUBJECT.ID AS SUBJECT_ID , PROJECT.ID AS PROJECT_ID , ABBREVIATION, NAME , COMMENT  , TEACHER FROM SUBJECT INNER JOIN PROJECT ON SUBJECT.ID = PROJECT.SUBJECT_ID" , nativeQuery = true)
-    List<String> getAllAndGroup();
-
-    @Query(value = "select  NVL(MAX(ID)+1 , 0) from SUBJECT", nativeQuery = true)
+    @Query(value = "select  NVL(MAX(ID) , 0)+1 from SUBJECT", nativeQuery = true)
     int generateNextSubjectId();
 }
