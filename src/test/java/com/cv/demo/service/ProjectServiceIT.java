@@ -42,275 +42,44 @@ public class ProjectServiceIT {
     private SubjectITTool subjectITTool;
     private final ProjectAssembler projectAssembler = Mappers.getMapper(ProjectAssembler.class);
 
-    @Test
-    @Transactional
-    @Rollback
-    public void creatingProjectWithSpecificNum() throws MissingProjectNameException, MissingProjectSubjectIdException {
-
-        //given
-        Integer subjectId = 1;
-        String name = "NAME";
-        String comment = "COMMENT";
-        Integer projectId = 10;
-
-        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
-        Project projectNew = projectITTool.createProject(projectId, name, subjectId, comment);
-        ProjectDto projectNewDto = projectAssembler.toDto(projectNew);
-
-        //when
-        LocalDateTime before = LocalDateTime.now().minusSeconds(1L);
-        projectService.saveOrUpdate(projectNewDto);
-
-        //then
-        LocalDateTime after = LocalDateTime.now().plusSeconds(1L);
-
-        List<Project> projects = projectRepository.findAll();
-        Assert.assertEquals(1, projects.size());
-
-        Project project = projects.get(0);
-
-        Assert.assertEquals(projectId, project.getId());
-        Assert.assertEquals(name, project.getName());
-        Assert.assertEquals(comment, project.getComment());
-        Assert.assertEquals(subjectId, project.getSubjectId());
-        Assert.assertTrue(before.isBefore(project.getCreatedAt()));
-        Assert.assertTrue(after.isAfter(project.getCreatedAt()));
-        Assert.assertTrue(before.isBefore(project.getModifiedAt()));
-        Assert.assertTrue(after.isAfter(project.getModifiedAt()));
-    }
-
-    @Test(expected = MissingProjectNameException.class)
-    @Transactional
-    @Rollback
-    public void creatingProjectWithNullName() throws MissingProjectNameException, MissingProjectSubjectIdException {
-
-        //given
-        Integer subjectId = 1;
-        String name = null;
-        String comment = "COMMENT";
-        Integer projectId = 10;
-
-        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
-        Project projectNew = projectITTool.createProject(projectId, name, subjectId, comment);
-        ProjectDto projectNewDto = projectAssembler.toDto(projectNew);
-
-
-        //when
-        projectService.saveOrUpdate(projectNewDto);
-
-        //then
-        //exception expected
-    }
-
-    @Test(expected = MissingProjectSubjectIdException.class)
-    @Transactional
-    @Rollback
-    public void creatingProjectWithNullSubjectID() throws MissingProjectNameException, MissingProjectSubjectIdException {
-
-        //given
-        Integer subjectId = null;
-        String name = "NAME";
-        String comment = "COMMENT";
-        Integer projectId = 10;
-
-        Project projectNew = projectITTool.createProject(projectId, name, subjectId, comment);
-        ProjectDto projectNewDto = projectAssembler.toDto(projectNew);
-
-        //when
-        projectService.saveOrUpdate(projectNewDto);
-
-        //then
-        //exception expected
+    private ProjectDto projectDto(Integer projectId , String name , String comment , Integer subjectId) {
+        ProjectDto projectDto = new ProjectDto();
+        projectDto.setId(projectId);
+        projectDto.setName(name);
+        projectDto.setComment(comment);
+        projectDto.setSubjectId(subjectId);
+        return projectDto;
     }
 
     @Test
     @Transactional
     @Rollback
-    public void creatingProjectWithNullIdAndNoProjectsInRepository() throws MissingProjectNameException, MissingProjectSubjectIdException {
-
-        //given
-        Integer subjectId = 1;
-        String name = "NAME";
-        String comment = "COMMENT";
-        Integer projectId = null;
-        Integer expectedId = 1;
-
-        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
-
-        ProjectDto projectNewDto = new ProjectDto();
-        projectNewDto.setId(projectId);
-        projectNewDto.setName(name);
-        projectNewDto.setComment(comment);
-        projectNewDto.setSubjectId(subjectId);
-
-
-        //when
-        projectService.saveOrUpdate(projectNewDto);
-
-        //then
-        List<Project> projects = projectRepository.findAll();
-        Assert.assertEquals(1, projects.size());
-
-        Project project = projects.get(0);
-
-        Assert.assertEquals(expectedId, project.getId());
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    public void creatingProjectWithNullIdAndProjectsInRepository() throws MissingProjectNameException, MissingProjectSubjectIdException {
-
-        //given
-        Integer subjectId = 1;
-
-        String name = "NAME OF NEW PROJECT";
-        String comment = "COMMENT NEW";
-        Integer projectId = null;
-
-        Integer expectedId = 2;
-
-        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
-        projectITTool.createProject(1, "name", subjectId, "comment");
-
-        ProjectDto projectDtoNew = new ProjectDto();
-        projectDtoNew.setId(projectId);
-        projectDtoNew.setName(name);
-        projectDtoNew.setComment(comment);
-        projectDtoNew.setSubjectId(subjectId);
-
-        //when
-        projectService.saveOrUpdate(projectDtoNew);
-
-        //then
-        List<Project> projects = projectRepository.findAll();
-        Assert.assertEquals(2, projects.size());
-
-        Project project = projects.get(1);
-        Assert.assertEquals(expectedId, project.getId());
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    public void updatingProject() throws MissingProjectNameException, MissingProjectSubjectIdException {
-
-        //given
-        Integer subjectId = 1;
-        Integer projectId = 10;
-        String commentNew = "UPDATING";
-        LocalDateTime createdAt = LocalDateTime.of(2022, 1, 1, 0, 0, 1);
-        LocalDateTime modifiedAt = LocalDateTime.of(2023, 1, 24, 0, 0, 1);
-        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
-        Project projectNew = projectITTool.createProject(projectId, "NAME", subjectId, "COMMENT", createdAt, modifiedAt);
-
-        projectNew.setComment(commentNew);
-
-        //when
-        LocalDateTime before = LocalDateTime.now().minusSeconds(1L);
-        projectService.saveOrUpdate(projectAssembler.toDto(projectNew));
-
-        //then
-        LocalDateTime after = LocalDateTime.now().plusSeconds(1L);
-
-        List<Project> projects = projectRepository.findAll();
-        Assert.assertEquals(1, projects.size());
-
-        Project project = projects.get(0);
-
-        Assert.assertEquals(projectId, project.getId());
-        Assert.assertEquals(commentNew, project.getComment());
-        Assert.assertEquals(projectNew.getCreatedAt(), project.getCreatedAt());
-        Assert.assertTrue(before.isBefore(project.getModifiedAt()));
-        Assert.assertTrue(after.isAfter(project.getModifiedAt()));
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    public void deletingProject() throws ProjectNotFoundException {
-
-        //given
-        int subjectID = 1;
-        int projectId = 10;
-
-        subjectITTool.createSubject(subjectID, "ABBREVIATION", "TEACHER");
-        projectITTool.createProject(projectId, "test", subjectID);
-
-        //when
-        projectService.delete(projectId);
-
-        //then
-        List<Project> projects = projectRepository.findAll();
-
-        Assert.assertEquals(0, projects.size());
-    }
-
-    @Test(expected = ProjectNotFoundException.class)
-    @Transactional
-    @Rollback
-    public void deletingProjectNotFoundException() throws ProjectNotFoundException {
-
-        //given
-        int subjectId = 1;
-        int projectId = 10;
-        int notExistingProjectId = 2;
-
-        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
-        projectITTool.createProject(projectId, "test", subjectId);
-
-        //when
-        projectService.delete(notExistingProjectId);
-
-        //then
-        //exception expected
-    }
-
-
-    @Test(expected = SubjectNotFoundException.class)
-    @Transactional
-    @Rollback
-    public void getProjectsByNotFoundSubjectId() throws SubjectNotFoundException {
-
-        //given
-        int subjectId = 1;
-        int projectId = 10;
-        int notExistingSubjectId = 2;
-
-        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
-        projectITTool.createProject(projectId, "test", subjectId);
-
-        //when
-        projectService.getProjectBySubjectId(notExistingSubjectId);
-
-        //then
-        //exception expected
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    public void getProjectById() throws ProjectNotFoundException {
+    public void shouldFindProjectById() throws ProjectNotFoundException {
 
         //given
         Integer subjectID = 1;
         Integer projectId = 10;
+        String name = "NAME";
+        String comment = "comment";
 
         subjectITTool.createSubject(subjectID, "ABBREVIATION", "TEACHER");
-        projectITTool.createProject(projectId, "NAME", subjectID);
-
+        projectITTool.createProject(projectId, name, subjectID, comment);
 
         //when
         ProjectDto project = projectService.getProjectById(projectId);
 
         //then
         Assert.assertEquals(projectId, project.getId());
+        Assert.assertEquals(subjectID, project.getSubjectId());
+        Assert.assertEquals(name, project.getName());
+        Assert.assertEquals(comment, project.getComment());
+
     }
 
     @Test
     @Transactional
     @Rollback
-    public void getAllProjects() {
+    public void shouldFindAllProjects() {
 
         //given
         Integer subjectID = 1;
@@ -338,7 +107,7 @@ public class ProjectServiceIT {
     @Test
     @Transactional
     @Rollback
-    public void getAllProjectsBySubjectId() throws SubjectNotFoundException {
+    public void shouldFindAllProjectsBySubjectId() throws SubjectNotFoundException {
 
         //given
         int subjectID1 = 1;
@@ -365,5 +134,251 @@ public class ProjectServiceIT {
         Assert.assertTrue(id.contains(projectID2));
     }
 
-}
+    @Test(expected = ProjectNotFoundException.class)
+    @Transactional
+    @Rollback
+    public void shouldNotFindProjectByNotExistingProjectId() throws ProjectNotFoundException {
+        //given
 
+        //when
+        projectService.delete(1);
+
+        //then
+        //exception expected
+    }
+
+    @Test(expected = SubjectNotFoundException.class)
+    @Transactional
+    @Rollback
+    public void shouldNotFindProjectByNotExistingSubjectId() throws SubjectNotFoundException {
+
+        //given
+        int subjectId = 1;
+        int projectId = 10;
+        int notExistingSubjectId = 2;
+
+        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
+        projectITTool.createProject(projectId, "test", subjectId);
+
+        //when
+        projectService.getProjectBySubjectId(notExistingSubjectId);
+
+        //then
+        //exception expected
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void shouldCreateProjectWithSpecificSubjectId() throws MissingProjectNameException, MissingProjectSubjectIdException {
+
+        //given
+        Integer subjectId = 1;
+        String name = "NAME";
+        String comment = "COMMENT";
+        Integer projectId = 10;
+
+        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
+        ProjectDto projectNewDto = projectDto(projectId , name , comment, subjectId);
+
+        LocalDateTime before = LocalDateTime.now().minusSeconds(1L);
+
+        //when
+        projectService.saveOrUpdate(projectNewDto);
+
+        //then
+        LocalDateTime after = LocalDateTime.now().plusSeconds(1L);
+
+        List<Project> projects = projectRepository.findAll();
+        Assert.assertEquals(1, projects.size());
+
+        Project project = projects.get(0);
+
+        Assert.assertEquals(projectId, project.getId());
+        Assert.assertEquals(name, project.getName());
+        Assert.assertEquals(comment, project.getComment());
+        Assert.assertEquals(subjectId, project.getSubjectId());
+        Assert.assertTrue(before.isBefore(project.getCreatedAt()));
+        Assert.assertTrue(after.isAfter(project.getCreatedAt()));
+        Assert.assertTrue(before.isBefore(project.getModifiedAt()));
+        Assert.assertTrue(after.isAfter(project.getModifiedAt()));
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void shouldCreateProjectWithNullIdAndNoProjectsInRepository() throws MissingProjectNameException, MissingProjectSubjectIdException {
+
+        //given
+        Integer subjectId = 1;
+        String name = "NAME";
+        String comment = "COMMENT";
+        Integer projectId = null;
+        Integer expectedId = 1;
+
+        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
+        ProjectDto projectNewDto = projectDto(projectId, name, comment, subjectId);
+
+        //when
+        projectService.saveOrUpdate(projectNewDto);
+
+        //then
+        List<Project> projects = projectRepository.findAll();
+        Assert.assertEquals(1, projects.size());
+
+        Project project = projects.get(0);
+
+        Assert.assertEquals(expectedId, project.getId());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void shouldCreateProjectWithNullIdAndProjectsInRepository() throws MissingProjectNameException, MissingProjectSubjectIdException {
+
+        //given
+        Integer subjectId = 1;
+
+        String name = "NAME OF NEW PROJECT";
+        String comment = "COMMENT NEW";
+        Integer projectId = null;
+
+        Integer expectedId = 2;
+
+        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
+        projectITTool.createProject(1, "name", subjectId, "comment");
+
+        ProjectDto projectDtoNew = projectDto(projectId, name, comment, subjectId);
+
+        //when
+        projectService.saveOrUpdate(projectDtoNew);
+
+        //then
+        List<Project> projects = projectRepository.findAll();
+        Assert.assertEquals(2, projects.size());
+
+        Project project = projects.get(1);
+        Assert.assertEquals(expectedId, project.getId());
+    }
+
+    @Test(expected = MissingProjectSubjectIdException.class)
+    @Transactional
+    @Rollback
+    public void shouldNotCreateProjectWithNullSubjectID() throws MissingProjectNameException, MissingProjectSubjectIdException {
+
+        //given
+        Integer subjectId = null;
+        String name = "NAME";
+        String comment = "COMMENT";
+        Integer projectId = 10;
+
+        ProjectDto projectNewDto = projectDto(projectId, name, comment, subjectId);
+
+        //when
+        projectService.saveOrUpdate(projectNewDto);
+
+        //then
+        //exception expected
+    }
+
+    @Test(expected = MissingProjectNameException.class)
+    @Transactional
+    @Rollback
+    public void shouldNotCreateProjectWithNullName() throws MissingProjectNameException, MissingProjectSubjectIdException {
+
+        //given
+        Integer subjectId = 1;
+        String name = null;
+        String comment = "COMMENT";
+        Integer projectId = 10;
+
+        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
+        ProjectDto projectNewDto = projectDto(projectId, name, comment, subjectId);
+
+        //when
+        projectService.saveOrUpdate(projectNewDto);
+
+        //then
+        //exception expected
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void shouldUpdateProject() throws MissingProjectNameException, MissingProjectSubjectIdException {
+
+        //given
+        Integer subjectId = 1;
+        Integer projectId = 10;
+        String commentNew = "UPDATING";
+        LocalDateTime createdAt = LocalDateTime.of(2022, 1, 1, 0, 0, 1);
+        LocalDateTime modifiedAt = LocalDateTime.of(2023, 1, 24, 0, 0, 1);
+
+        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
+        Project projectNew = projectITTool.createProject(projectId, "NAME", subjectId, "COMMENT", createdAt, modifiedAt);
+
+        projectNew.setComment(commentNew);
+        ProjectDto projectDto = projectAssembler.toDto(projectNew);
+
+        LocalDateTime before = LocalDateTime.now().minusSeconds(1L);
+
+        //when
+        projectService.saveOrUpdate(projectDto);
+
+        //then
+        LocalDateTime after = LocalDateTime.now().plusSeconds(1L);
+
+        List<Project> projects = projectRepository.findAll();
+        Assert.assertEquals(1, projects.size());
+
+        Project project = projects.get(0);
+
+        Assert.assertEquals(projectId, project.getId());
+        Assert.assertEquals(commentNew, project.getComment());
+        Assert.assertEquals(projectNew.getCreatedAt(), project.getCreatedAt());
+        Assert.assertTrue(before.isBefore(project.getModifiedAt()));
+        Assert.assertTrue(after.isAfter(project.getModifiedAt()));
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void shouldDeleteProject() throws ProjectNotFoundException {
+
+        //given
+        int subjectID = 1;
+        int projectId = 10;
+
+        subjectITTool.createSubject(subjectID, "ABBREVIATION", "TEACHER");
+        projectITTool.createProject(projectId, "test", subjectID);
+
+        //when
+        projectService.delete(projectId);
+
+        //then
+        long count = projectRepository.count();
+        Assert.assertEquals(0, count);
+    }
+
+    @Test(expected = ProjectNotFoundException.class)
+    @Transactional
+    @Rollback
+    public void shouldNotDeleteNotExistingProject() throws ProjectNotFoundException {
+
+        //given
+        int subjectId = 1;
+        int projectId = 10;
+        int notExistingProjectId = 2;
+
+        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
+        projectITTool.createProject(projectId, "test", subjectId);
+
+        //when
+        projectService.delete(notExistingProjectId);
+
+        //then
+        //exception expected
+    }
+
+
+}

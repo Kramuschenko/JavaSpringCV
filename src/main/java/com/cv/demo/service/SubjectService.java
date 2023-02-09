@@ -50,6 +50,12 @@ public class SubjectService {
         return subjectRepository.getAllSubjectsAndProjects();
     }
 
+    public List<SubjectDto> getSubjectsByTeacher(String teacher) {
+        return subjectRepository.findSubjectsByTeacher(teacher).stream()
+                .map(subjectAssembler::toDto)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public Subject saveOrUpdate(SubjectDto subjectDto) throws MissingSubjectAbbreviationException {
 
@@ -125,11 +131,5 @@ public class SubjectService {
 
         log.info("Projects of removed subject {} moved to archive", subject.getId());
         log.debug("Replaced projects: {}", projectsToReplace);
-    }
-
-    public List<SubjectDto> subjectsByTeacher(String teacher) {
-        return subjectRepository.findSubjectsByTeacher(teacher).stream()
-                .map(subjectAssembler::toDto)
-                .collect(Collectors.toList());
     }
 }

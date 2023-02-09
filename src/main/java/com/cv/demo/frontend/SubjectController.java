@@ -93,7 +93,7 @@ public class SubjectController {
 
     @GetMapping("/subject/teacher/all/{teacherName}")
     private List<SubjectDto> subjectsByTeacher(@PathVariable("teacherName") String teacher) {
-        return subjectService.subjectsByTeacher(teacher);
+        return subjectService.getSubjectsByTeacher(teacher);
     }
 
     @GetMapping("/subjects-projects")
