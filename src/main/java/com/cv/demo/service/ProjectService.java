@@ -58,26 +58,28 @@ public class ProjectService {
 
         validate(projectDto);
 
-        Project projectDb;
+        Project project;
 
         if (projectId == null) {
-            projectDb = new Project();
-            projectDb.setId(projectRepository.generateNextProjectId());
+            project = new Project();
+            projectId = projectRepository.generateNextProjectId();
+            project.setId(projectId);
         } else {
-            projectDb = projectRepository.findById(projectId).orElseGet( () -> {
+            Integer finalProjectId = projectId;
+            project = projectRepository.findById(projectId).orElseGet(() -> {
                 Project projectNew = new Project();
-                projectNew.setId(projectId);
+                projectNew.setId(finalProjectId);
                 return projectNew;
             });
         }
 
-        projectDb.setName(projectDto.getName());
-        projectDb.setComment(projectDto.getComment());
-        projectDb.setSubjectId(projectDto.getSubjectId());
-        projectDb.setModifiedAt(LocalDateTime.now());
+        project.setName(projectDto.getName());
+        project.setComment(projectDto.getComment());
+        project.setSubjectId(projectDto.getSubjectId());
+        project.setModifiedAt(LocalDateTime.now());
 
-        log.info("Project {}", projectId == null ? "\"New\" has been created" : (projectId + " has been updated"));
-        projectRepository.save(projectDb);
+        log.info("Project {} has been created or updated" , projectId);
+        projectRepository.save(project);
     }
 
     private void validate(ProjectDto projectDto) throws MissingProjectNameException, MissingProjectSubjectIdException {
@@ -97,7 +99,7 @@ public class ProjectService {
 
     @Transactional
     public void delete(int id) throws ProjectNotFoundException {
-       Project project = projectRepository.findById(id).orElseThrow(ProjectNotFoundException::new);
+        Project project = projectRepository.findById(id).orElseThrow(ProjectNotFoundException::new);
 
         log.info("Project {} was deleted", id);
         projectRepository.delete(project);

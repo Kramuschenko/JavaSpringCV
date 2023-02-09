@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Log4j2
 @RunWith(SpringRunner.class)
@@ -164,32 +163,24 @@ public class ProjectServiceIT {
 
         //given
         Integer subjectId = 1;
-        String name = "NAME";
-        String comment = "COMMENT";
-        Integer projectId = 1;
-        Integer subjectIdNew = 1;
-        String nameNew = "NAME OF NEW PROJECT";
-        String commentNew = "COMMENT NEW";
-        Integer projectIdNew = null;
+
+        String name = "NAME OF NEW PROJECT";
+        String comment = "COMMENT NEW";
+        Integer projectId = null;
+
         Integer expectedId = 2;
 
         subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
+        projectITTool.createProject(1, "name", subjectId, "comment");
 
-        ProjectDto projectNewDto = new ProjectDto();
-        projectNewDto.setId(projectId);
-        projectNewDto.setName(name);
-        projectNewDto.setComment(comment);
-        projectNewDto.setSubjectId(subjectId);
-        projectService.saveOrUpdate(projectNewDto);
-
-        ProjectDto projectDtoForTesting = new ProjectDto();
-        projectDtoForTesting.setId(projectIdNew);
-        projectDtoForTesting.setName(nameNew);
-        projectDtoForTesting.setComment(commentNew);
-        projectDtoForTesting.setSubjectId(subjectIdNew);
+        ProjectDto projectDtoNew = new ProjectDto();
+        projectDtoNew.setId(projectId);
+        projectDtoNew.setName(name);
+        projectDtoNew.setComment(comment);
+        projectDtoNew.setSubjectId(subjectId);
 
         //when
-        projectService.saveOrUpdate(projectDtoForTesting);
+        projectService.saveOrUpdate(projectDtoNew);
 
         //then
         List<Project> projects = projectRepository.findAll();
@@ -205,28 +196,31 @@ public class ProjectServiceIT {
     public void updatingProject() throws MissingProjectNameException, MissingProjectSubjectIdException {
 
         //given
-        int subjectId = 1;
+        Integer subjectId = 1;
+        Integer projectId = 10;
+        String commentNew = "UPDATING";
         LocalDateTime createdAt = LocalDateTime.of(2022, 1, 1, 0, 0, 1);
+        LocalDateTime modifiedAt = LocalDateTime.of(2023, 1, 24, 0, 0, 1);
         subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
-        Project projectNew = projectITTool.createProject(10, "NAME", subjectId, "COMMENT");
-        projectNew.setCreatedAt(createdAt);
+        Project projectNew = projectITTool.createProject(projectId, "NAME", subjectId, "COMMENT", createdAt, modifiedAt);
 
+        projectNew.setComment(commentNew);
 
         //when
         LocalDateTime before = LocalDateTime.now().minusSeconds(1L);
-        projectNew.setName("UPDATING");
         projectService.saveOrUpdate(projectAssembler.toDto(projectNew));
 
         //then
         LocalDateTime after = LocalDateTime.now().plusSeconds(1L);
-        Optional<Project> projectOpt = projectRepository.findById(10);
 
-        Assert.assertTrue(projectOpt.isPresent());
+        List<Project> projects = projectRepository.findAll();
+        Assert.assertEquals(1, projects.size());
 
-        Project project = projectOpt.get();
+        Project project = projects.get(0);
 
-        Assert.assertEquals(createdAt, project.getCreatedAt());
-        Assert.assertEquals(projectNew.getName(), project.getName());
+        Assert.assertEquals(projectId, project.getId());
+        Assert.assertEquals(commentNew, project.getComment());
+        Assert.assertEquals(projectNew.getCreatedAt(), project.getCreatedAt());
         Assert.assertTrue(before.isBefore(project.getModifiedAt()));
         Assert.assertTrue(after.isAfter(project.getModifiedAt()));
     }
@@ -281,13 +275,13 @@ public class ProjectServiceIT {
         //given
         int subjectId = 1;
         int projectId = 10;
-        int notExistingProjectId = 2;
+        int notExistingSubjectId = 2;
 
         subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
         projectITTool.createProject(projectId, "test", subjectId);
 
         //when
-        projectService.getProjectBySubjectId(notExistingProjectId);
+        projectService.getProjectBySubjectId(notExistingSubjectId);
 
         //then
         //exception expected
@@ -349,10 +343,12 @@ public class ProjectServiceIT {
         //given
         int subjectID1 = 1;
         int subjectID2 = 2;
+        int projectID1 = 10;
+        int projectID2 = 11;
         subjectITTool.createSubject(subjectID1, "ABBREVIATION of first");
         subjectITTool.createSubject(subjectID2, "ABBREVIATION of second");
-        projectITTool.createProject(10, "Name of first", subjectID1);
-        projectITTool.createProject(11, "Name of second", subjectID1);
+        projectITTool.createProject(projectID1, "Name of first", subjectID1);
+        projectITTool.createProject(projectID2, "Name of second", subjectID1);
         projectITTool.createProject(12, "Name of third", subjectID2);
 
         //when
@@ -365,8 +361,8 @@ public class ProjectServiceIT {
         id.add(projectDtoList.get(0).getId());
         id.add(projectDtoList.get(1).getId());
 
-        Assert.assertTrue(id.contains(10));
-        Assert.assertTrue(id.contains(11));
+        Assert.assertTrue(id.contains(projectID1));
+        Assert.assertTrue(id.contains(projectID2));
     }
 
 }

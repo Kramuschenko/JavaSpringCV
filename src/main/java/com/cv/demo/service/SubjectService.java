@@ -66,7 +66,7 @@ public class SubjectService {
             subject.setId(subjectId);
         } else {
             Integer finalSubjectId = subjectId;
-            subject = subjectRepository.findById(subjectId).orElseGet( () -> {
+            subject = subjectRepository.findById(subjectId).orElseGet(() -> {
                 Subject subjectNew = new Subject();
                 subjectNew.setId(finalSubjectId);
                 return subjectNew;
@@ -129,7 +129,7 @@ public class SubjectService {
         projectRepository.saveAll(subjectArchive.getProjects());
 
         log.info("Projects of removed subject {} moved to archive", subject.getId());
-        log.debug("Replaced projects: {}" , projectsToReplace);
+        log.debug("Replaced projects: {}", projectsToReplace);
     }
 
     public List<SubjectDto> subjectsByTeacher(String teacher) {

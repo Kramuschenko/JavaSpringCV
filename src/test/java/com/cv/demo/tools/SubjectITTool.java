@@ -4,7 +4,6 @@ import com.cv.demo.backend.Project;
 import com.cv.demo.backend.Subject;
 import com.cv.demo.backend.repository.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
