@@ -1,6 +1,5 @@
 package com.cv.demo.frontend;
 
-import com.cv.demo.backend.Subject;
 import com.cv.demo.dto.SubjectDto;
 import com.cv.demo.exception.ArchiveSubjectNotFoundException;
 import com.cv.demo.exception.DeletingArchiveSubjectException;
@@ -49,46 +48,24 @@ public class SubjectController {
 
     @PostMapping("/subject")
     private @ResponseBody ResponseEntity<String> saveSubject(@RequestBody SubjectDto subjectDto) throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
-        log.info(subjectDto);
-        Subject subject = subjectService.saveOrUpdate(subjectDto);
-        Integer subjectId = subject.getId();
-        Integer subjectDtoId = subjectDto.getId();
-        if (String.valueOf(subjectDtoId).equals("0")) {
-            throw new UpdatingArchiveSubjectException();
-        } else {
-            String answer = "Subject: " + (subjectDtoId == null ?
-                    subjectService.getAllSubjects().size() + " added" : subjectId + " updated");
-            log.info("Success: " + (subjectDtoId == null ? "Subject created" : "Subject updated (" + subjectId + ")"));
-            return new ResponseEntity<>(answer, HttpStatus.OK);
-        }
+        subjectService.saveOrUpdate(subjectDto);
+        Integer subjectId = subjectDto.getId();
+
+        String answer = "Subject: " + (subjectId == null ? " added" : subjectId + " updated");
+        log.info("Success: " + answer);
+        log.debug("Saved or updated: " + subjectDto);
+        return new ResponseEntity<>(answer, HttpStatus.OK);
+
     }
 
     @PostMapping("/subjects")
     private @ResponseBody ResponseEntity<String> saveSubjects(@RequestBody List<SubjectDto> subjectsDto) throws UpdatingArchiveSubjectException, MissingSubjectAbbreviationException {
 
-        int size = subjectsDto.size();
-        for (int i = 0; i < size; i++) {
-            try {
-                saveSubject(subjectsDto.get(i));
-                log.info("Subject {} of {} saved successfully", (i + 1), size);
-            } catch (UpdatingArchiveSubjectException | MissingSubjectAbbreviationException e) {
-                errorsLog(subjectsDto, i, e);
-                throw e;
-            }
-        }
-
+        subjectService.saveOrUpdateSubjects(subjectsDto);
         String answer = "Subjects added or updated";
+        log.info("Success: " + answer);
+        log.debug("Saved or updated: " + subjectsDto);
         return new ResponseEntity<>(answer, HttpStatus.OK);
-    }
-
-    private static void errorsLog(List<SubjectDto> subjectsDto, int i, Exception e) {
-
-        if (i > 0) {
-            log.error(e + "were saved only {} elements ", (i));
-            log.error("Were saved only that items: " + subjectsDto.subList(0, i));
-        } else {
-            log.error("Subjects were not saved");
-        }
     }
 
     @GetMapping("/subject/teacher/all/{teacherName}")

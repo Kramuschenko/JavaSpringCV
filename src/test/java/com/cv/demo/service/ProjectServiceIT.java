@@ -76,6 +76,20 @@ public class ProjectServiceIT {
 
     }
 
+    @Test(expected = ProjectNotFoundException.class)
+    @Transactional
+    @Rollback
+    public void shouldNotFindProjectByNotExistingProjectId() throws ProjectNotFoundException {
+        //given
+        int notExistingProjectId = 1;
+
+        //when
+        projectService.getProjectById(notExistingProjectId);
+
+        //then
+        //exception expected
+    }
+
     @Test
     @Transactional
     @Rollback
@@ -121,7 +135,7 @@ public class ProjectServiceIT {
         projectITTool.createProject(12, "Name of third", subjectID2);
 
         //when
-        List<ProjectDto> projectDtoList = projectService.getProjectBySubjectId(subjectID1);
+        List<ProjectDto> projectDtoList = projectService.getProjectsBySubjectId(subjectID1);
 
         //then
         Assert.assertEquals(2, projectDtoList.size());
@@ -132,19 +146,6 @@ public class ProjectServiceIT {
 
         Assert.assertTrue(id.contains(projectID1));
         Assert.assertTrue(id.contains(projectID2));
-    }
-
-    @Test(expected = ProjectNotFoundException.class)
-    @Transactional
-    @Rollback
-    public void shouldNotFindProjectByNotExistingProjectId() throws ProjectNotFoundException {
-        //given
-
-        //when
-        projectService.delete(1);
-
-        //then
-        //exception expected
     }
 
     @Test(expected = SubjectNotFoundException.class)
@@ -161,7 +162,7 @@ public class ProjectServiceIT {
         projectITTool.createProject(projectId, "test", subjectId);
 
         //when
-        projectService.getProjectBySubjectId(notExistingSubjectId);
+        projectService.getProjectsBySubjectId(notExistingSubjectId);
 
         //then
         //exception expected

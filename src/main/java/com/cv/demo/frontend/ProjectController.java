@@ -36,7 +36,7 @@ public class ProjectController {
 
     @GetMapping("/project/by-subject-id/{id}")
     private List<ProjectDto> getAllProjectBySubjectId(@PathVariable("id") Integer id) throws SubjectNotFoundException {
-        return projectService.getProjectBySubjectId(id);
+        return projectService.getProjectsBySubjectId(id);
     }
 
     @GetMapping("/project/{id}")
@@ -58,9 +58,8 @@ public class ProjectController {
         projectService.saveOrUpdate(projectDto);
         Integer id = projectDto.getId();
 
-        String answer = "Project: " + (id == null ?
-                projectService.getAllProjects().size() + " added" : id + " updated");
-        log.debug("Success: " + (id == null ? "Project created" : "Project updated (" + id + ")"));
+        String answer = "Project: " + (id == null ? " added" : id + " updated");
+        log.info("Success: " + answer);
         return new ResponseEntity<>(answer, HttpStatus.OK);
     }
 
@@ -68,28 +67,13 @@ public class ProjectController {
     @ResponseBody
     private ResponseEntity<String> saveProjects(@RequestBody List<ProjectDto> projectsDto) throws MissingProjectNameException, MissingProjectSubjectIdException {
 
-        int size = projectsDto.size();
-        for (int i = 0; i < size; i++) {
-
-            try {
-                saveProject(projectsDto.get(i));
-                log.info("Project {} of {} saved successfully", (i + 1), size);
-            } catch (MissingProjectNameException | MissingProjectSubjectIdException e) {
-                errorsLog(projectsDto, i, e);
-                throw e;
-            }
-        }
+        projectService.saveOrUpdateProjects(projectsDto);
 
         String answer = "Projects added or updated";
+        log.info("Success: " + answer);
+        log.debug("Saved or updated: " + projectsDto);
         return new ResponseEntity<>(answer, HttpStatus.OK);
     }
 
-    private static void errorsLog(List<ProjectDto> projectsDto, int i, Exception e) {
-        if (i > 0) {
-            log.error(e + "were saved only {} elements ", (i));
-            log.error("Were saved only that items: " + projectsDto.subList(0, i));
-        } else {
-            log.error("Subjects were not saved");
-        }
-    }
+
 }

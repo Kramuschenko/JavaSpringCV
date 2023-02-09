@@ -43,12 +43,36 @@ public class ProjectService {
                 .orElseThrow(ProjectNotFoundException::new);
     }
 
-    public List<ProjectDto> getProjectBySubjectId(Integer id) throws SubjectNotFoundException {
+    public List<ProjectDto> getProjectsBySubjectId(Integer id) throws SubjectNotFoundException {
         subjectRepository.findById(id).orElseThrow(SubjectNotFoundException::new);
 
         return projectRepository.getProjectBySubjectId(id).stream()
                 .map(projectAssembler::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void saveOrUpdateProjects(List<ProjectDto> projectsDto) throws MissingProjectNameException, MissingProjectSubjectIdException {
+        int size = projectsDto.size();
+        for (int i = 0; i < size; i++) {
+
+            try {
+                saveOrUpdate(projectsDto.get(i));
+                log.info("Project {} of {} saved successfully", (i + 1), size);
+            } catch (MissingProjectNameException | MissingProjectSubjectIdException e) {
+                errorsLog(projectsDto, i, e);
+                throw e;
+            }
+        }
+    }
+
+    private static void errorsLog(List<ProjectDto> projectsDto, int i, Exception e) {
+        if (i > 0) {
+            log.error(e + "were saved only {} elements ", (i));
+            log.error("Were saved only that items: " + projectsDto.subList(0, i));
+        } else {
+            log.error("Subjects were not saved");
+        }
     }
 
     @Transactional

@@ -27,6 +27,9 @@ import java.util.Objects;
 @Entity
 @Table(name = "SUBJECT")
 public class Subject {
+
+    public static final int ARCHIVE_SUBJECT_ID = 0;
+
     @Id
     @Column(name = "ID")
     private Integer id;

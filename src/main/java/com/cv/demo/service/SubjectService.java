@@ -6,10 +6,7 @@ import com.cv.demo.backend.Subject;
 import com.cv.demo.backend.repository.ProjectRepository;
 import com.cv.demo.backend.repository.SubjectRepository;
 import com.cv.demo.dto.SubjectDto;
-import com.cv.demo.exception.ArchiveSubjectNotFoundException;
-import com.cv.demo.exception.DeletingArchiveSubjectException;
-import com.cv.demo.exception.MissingSubjectAbbreviationException;
-import com.cv.demo.exception.SubjectNotFoundException;
+import com.cv.demo.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.mapstruct.factory.Mappers;
@@ -55,9 +52,32 @@ public class SubjectService {
                 .map(subjectAssembler::toDto)
                 .collect(Collectors.toList());
     }
+    @Transactional
+    public void saveOrUpdateSubjects(List<SubjectDto> subjectsDto) throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
+        int size = subjectsDto.size();
+        for (int i = 0; i < size; i++) {
+            try {
+                saveOrUpdate(subjectsDto.get(i));
+                log.info("Subject {} of {} saved successfully", (i + 1), size);
+            } catch (MissingSubjectAbbreviationException | UpdatingArchiveSubjectException e) {
+                errorsLog(subjectsDto, i, e);
+                throw e;
+            }
+        }
+    }
+
+    private static void errorsLog(List<SubjectDto> subjectsDto, int i, Exception e) {
+
+        if (i > 0) {
+            log.error(e + "were saved only {} elements ", (i));
+            log.error("Were saved only that items: " + subjectsDto.subList(0, i));
+        } else {
+            log.error("Subjects were not saved");
+        }
+    }
 
     @Transactional
-    public Subject saveOrUpdate(SubjectDto subjectDto) throws MissingSubjectAbbreviationException {
+    public Subject saveOrUpdate(SubjectDto subjectDto) throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
 
         Integer subjectId = subjectDto.getId();
 
@@ -91,10 +111,13 @@ public class SubjectService {
         return subjectRepository.save(subject);
     }
 
-    private void validate(SubjectDto subjectDto) throws MissingSubjectAbbreviationException {
+    private void validate(SubjectDto subjectDto) throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
         if (subjectDto.getAbbreviation() == null) {
             log.error("Subject abbreviation is null");
             throw new MissingSubjectAbbreviationException();
+        }
+        if (subjectDto.getId() == 0) {
+            throw new UpdatingArchiveSubjectException();
         }
     }
 

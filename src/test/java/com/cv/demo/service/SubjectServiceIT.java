@@ -5,10 +5,7 @@ import com.cv.demo.backend.Project;
 import com.cv.demo.backend.Subject;
 import com.cv.demo.backend.repository.SubjectRepository;
 import com.cv.demo.dto.SubjectDto;
-import com.cv.demo.exception.ArchiveSubjectNotFoundException;
-import com.cv.demo.exception.DeletingArchiveSubjectException;
-import com.cv.demo.exception.MissingSubjectAbbreviationException;
-import com.cv.demo.exception.SubjectNotFoundException;
+import com.cv.demo.exception.*;
 import com.cv.demo.tools.ProjectITTool;
 import com.cv.demo.tools.SubjectITTool;
 import lombok.extern.log4j.Log4j2;
@@ -44,7 +41,7 @@ public class SubjectServiceIT {
 
     private final SubjectAssembler subjectAssembler = Mappers.getMapper(SubjectAssembler.class);
 
-    private SubjectDto subjectDto(Integer subjectId, String abbreviation, String teacher){
+    private SubjectDto createSubjectDto(Integer subjectId, String abbreviation, String teacher){
         SubjectDto subjectDto = new SubjectDto();
         subjectDto.setId(subjectId);
         subjectDto.setTeacher(teacher);
@@ -122,9 +119,9 @@ public class SubjectServiceIT {
         Assert.assertEquals(subjectId, Integer.valueOf(information[0]));
         Assert.assertEquals(projectId, Integer.valueOf(information[1]));
         Assert.assertEquals(abbreviation, information[2]);
-        Assert.assertEquals(name + "", information[3]);
-        Assert.assertEquals(comment + "", information[4]);
-        Assert.assertEquals(teacher + "", information[5]);
+        Assert.assertEquals(name , information[3]);
+        Assert.assertEquals(comment, information[4]);
+        Assert.assertEquals(teacher, information[5]);
     }
 
     @Test
@@ -174,14 +171,14 @@ public class SubjectServiceIT {
     @Test
     @Transactional
     @Rollback
-    public void shouldCreateSubjectWithSpecificSubjectId() throws MissingSubjectAbbreviationException {
+    public void shouldCreateSubjectWithSpecificSubjectId() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
         //given
         Integer subjectID = 4;
         String abbreviation = "Abbreviation";
         String teacher = "Teacher";
         LocalDateTime before = LocalDateTime.now().minusSeconds(1L);
 
-        SubjectDto subjectDto = subjectDto(subjectID, abbreviation, teacher);
+        SubjectDto subjectDto = createSubjectDto(subjectID, abbreviation, teacher);
 
         //when
         subjectService.saveOrUpdate(subjectDto);
@@ -207,13 +204,13 @@ public class SubjectServiceIT {
     @Test
     @Transactional
     @Rollback
-    public void shouldCreateSubjectWithFirstIdGenerated() throws MissingSubjectAbbreviationException {
+    public void shouldCreateSubjectWithFirstIdGenerated() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
         //given
         Integer subjectID = null;
         String abbreviation = "Abbreviation";
         Integer expectedId = 1;
 
-        SubjectDto subjectDto = subjectDto(subjectID, abbreviation, null);
+        SubjectDto subjectDto = createSubjectDto(subjectID, abbreviation, null);
 
         //when
         subjectService.saveOrUpdate(subjectDto);
@@ -227,7 +224,7 @@ public class SubjectServiceIT {
     @Test
     @Transactional
     @Rollback
-    public void shouldCreateSubjectWithConsecutiveIdGenerated() throws MissingSubjectAbbreviationException {
+    public void shouldCreateSubjectWithConsecutiveIdGenerated() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
         //given
         Integer subjectID = 1;
         String abbreviation = "Abbreviation";
@@ -238,7 +235,7 @@ public class SubjectServiceIT {
         String abbreviationNew = "Abbreviation2";
         Integer expectedId = 2;
 
-        SubjectDto subjectDtoNew = subjectDto(subjectIDNew , abbreviationNew , null);
+        SubjectDto subjectDtoNew = createSubjectDto(subjectIDNew , abbreviationNew , null);
 
         //when
         Subject subject = subjectService.saveOrUpdate(subjectDtoNew);
@@ -252,12 +249,12 @@ public class SubjectServiceIT {
     @Test(expected = MissingSubjectAbbreviationException.class)
     @Transactional
     @Rollback
-    public void shouldNotCreateSubjectWithNullAbbreviation() throws MissingSubjectAbbreviationException {
+    public void shouldNotCreateSubjectWithNullAbbreviation() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
         //given
         Integer subjectID = 1;
         String abbreviation = null;
 
-        SubjectDto subjectDtoNew = subjectDto(subjectID , abbreviation , null);
+        SubjectDto subjectDtoNew = createSubjectDto(subjectID , abbreviation , null);
 
         //when
         subjectService.saveOrUpdate(subjectDtoNew);
@@ -269,10 +266,12 @@ public class SubjectServiceIT {
     @Test
     @Transactional
     @Rollback
-    public void shouldUpdateSubject() throws MissingSubjectAbbreviationException {
+    public void shouldUpdateSubject() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
         //given
         Integer subjectId = 4;
         Integer projectId = 1;
+        String teacher = "Teacher";
+        String abbreviation = "Abbreviation";
         String abbreviationNew = "Abbreviation UPDATED";
 
         Project projectNew = projectITTool.createProject(projectId, "name");
@@ -283,14 +282,14 @@ public class SubjectServiceIT {
         LocalDateTime createdAt = LocalDateTime.of(2020, 6, 7, 12, 30, 25);
         LocalDateTime modifiedAt = LocalDateTime.of(2022, 1, 1, 0, 0, 1);
 
-        Subject subjectNew = subjectITTool.createSubject(subjectId, "Abbreviation", createdAt, modifiedAt, "Teacher", projectsNew);
+        subjectITTool.createSubject(subjectId, abbreviation, createdAt, modifiedAt, teacher, projectsNew);
 
-        subjectNew.setAbbreviation(abbreviationNew);
+        SubjectDto subjectDto = createSubjectDto(subjectId, abbreviationNew, teacher);
 
         LocalDateTime before = LocalDateTime.now().minusSeconds(1L);
 
         //when
-        subjectService.saveOrUpdate(subjectAssembler.toDto(subjectNew));
+        subjectService.saveOrUpdate(subjectDto);
 
         //then
         LocalDateTime after = LocalDateTime.now().plusSeconds(1L);
@@ -301,8 +300,7 @@ public class SubjectServiceIT {
         Subject subject = subjects.get(0);
 
         Assert.assertEquals(subjectId, subject.getId());
-        Assert.assertEquals(subjectNew.getAbbreviation(), subject.getAbbreviation());
-        Assert.assertEquals(subjectNew.getCreatedAt(), subject.getCreatedAt());
+        Assert.assertEquals(abbreviationNew, subject.getAbbreviation());
         Assert.assertTrue(before.isBefore(subject.getModifiedAt()));
         Assert.assertTrue(after.isAfter(subject.getModifiedAt()));
 
@@ -391,9 +389,11 @@ public class SubjectServiceIT {
 
         //given
         Integer subjectDeletedId = 4;
-        List<Project> projectsNew = new ArrayList<>();
         Project projectNew = projectITTool.createProject(1, "Tmp");
+
+        List<Project> projectsNew = new ArrayList<>();
         projectsNew.add(projectNew);
+
         subjectITTool.createSubject(subjectDeletedId, "Abbreviation", "Teacher", projectsNew);
 
         //when
