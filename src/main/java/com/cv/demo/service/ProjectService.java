@@ -78,7 +78,8 @@ public class ProjectService {
         project.setSubjectId(projectDto.getSubjectId());
         project.setModifiedAt(LocalDateTime.now());
 
-        log.info("Project {} has been created or updated" , projectId);
+        log.info("Project {} has been created or updated", projectId);
+        log.debug("Created or updated: {}", project);
         projectRepository.save(project);
     }
 
@@ -102,6 +103,7 @@ public class ProjectService {
         Project project = projectRepository.findById(id).orElseThrow(ProjectNotFoundException::new);
 
         log.info("Project {} was deleted", id);
+        log.debug("Deleted: {}", project);
         projectRepository.delete(project);
     }
 }

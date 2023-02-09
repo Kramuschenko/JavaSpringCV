@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
 @Log4j2
 @Service
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -82,6 +81,7 @@ public class SubjectService {
         subject.setModifiedAt(LocalDateTime.now());
 
         log.info("Subject {} has been created or updated", subjectId == 0 ? "\"New\"" : subjectId);
+        log.debug("Created or updated: {}", subject);
         return subjectRepository.save(subject);
     }
 
@@ -106,6 +106,7 @@ public class SubjectService {
             moveProjectsToArchive(subject);
         }
         log.info("Subject {} was deleted", id);
+        log.debug("Deleted: {}", subject);
         subjectRepository.deleteById(id);
 
     }
