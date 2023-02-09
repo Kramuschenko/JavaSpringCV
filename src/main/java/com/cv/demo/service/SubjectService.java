@@ -103,9 +103,7 @@ public class SubjectService {
 
         if (!subject.getProjects().isEmpty()) {
             log.error("In subject you wanted to remove were projects ; Projects were moved to Archive ; Archive id : 0");
-
             moveProjectsToArchive(subject);
-
         }
         log.info("Subject {} was deleted", id);
         subjectRepository.deleteById(id);
@@ -116,15 +114,11 @@ public class SubjectService {
         List<Project> projectsToReplace = new ArrayList<>(subject.getProjects());
         Optional<Subject> subjectArchiveOpt = subjectRepository.findById(0);
 
-        if (!subjectArchiveOpt.isPresent()) {
-            log.error("There is no Archive of projects in database");
-            throw new ArchiveSubjectNotFoundException();
-        }
+        Subject subjectArchive = subjectArchiveOpt.orElseThrow(ArchiveSubjectNotFoundException::new);
 
         subject.getProjects().clear();
         subjectRepository.save(subject);
 
-        Subject subjectArchive = subjectArchiveOpt.get();
         subjectArchive.getProjects().addAll(projectsToReplace);
         projectRepository.saveAll(subjectArchive.getProjects());
 
