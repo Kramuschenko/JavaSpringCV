@@ -121,21 +121,34 @@ public class ProjectServiceIT {
     @Test
     @Transactional
     @Rollback
+    public void shouldReturnEmptyListWhenFindAllProjects() {
+        //given
+
+        //when
+        List<ProjectDto> projectDtoList = projectService.getAllProjects();
+
+        //then
+        Assert.assertTrue(projectDtoList.isEmpty());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
     public void shouldFindAllProjectsBySubjectId() throws SubjectNotFoundException {
 
         //given
-        int subjectID1 = 1;
-        int subjectID2 = 2;
-        int projectID1 = 10;
-        int projectID2 = 11;
-        subjectITTool.createSubject(subjectID1, "ABBREVIATION of first");
-        subjectITTool.createSubject(subjectID2, "ABBREVIATION of second");
-        projectITTool.createProject(projectID1, "Name of first", subjectID1);
-        projectITTool.createProject(projectID2, "Name of second", subjectID1);
-        projectITTool.createProject(12, "Name of third", subjectID2);
+        int subjectId1 = 1;
+        int subjectId2 = 2;
+        int projectId1 = 10;
+        int projectId2 = 11;
+        subjectITTool.createSubject(subjectId1, "ABBREVIATION of first");
+        subjectITTool.createSubject(subjectId2, "ABBREVIATION of second");
+        projectITTool.createProject(projectId1, "Name of first", subjectId1);
+        projectITTool.createProject(projectId2, "Name of second", subjectId1);
+        projectITTool.createProject(12, "Name of third", subjectId2);
 
         //when
-        List<ProjectDto> projectDtoList = projectService.getProjectsBySubjectId(subjectID1);
+        List<ProjectDto> projectDtoList = projectService.getProjectsBySubjectId(subjectId1);
 
         //then
         Assert.assertEquals(2, projectDtoList.size());
@@ -144,8 +157,32 @@ public class ProjectServiceIT {
         id.add(projectDtoList.get(0).getId());
         id.add(projectDtoList.get(1).getId());
 
-        Assert.assertTrue(id.contains(projectID1));
-        Assert.assertTrue(id.contains(projectID2));
+        Assert.assertTrue(id.contains(projectId1));
+        Assert.assertTrue(id.contains(projectId2));
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void shouldReturnEmptyListWhenFindAllProjectsBySubjectId() throws SubjectNotFoundException {
+
+        //given
+        int subjectId1 = 1;
+        int subjectId2 = 2;
+        int projectId1 = 10;
+        int projectId2 = 11;
+        int projectId3 = 12;
+        subjectITTool.createSubject(subjectId1, "ABBREVIATION of first");
+        subjectITTool.createSubject(subjectId2, "ABBREVIATION of second");
+        projectITTool.createProject(projectId1, "Name of first", subjectId2);
+        projectITTool.createProject(projectId2, "Name of second", subjectId2);
+        projectITTool.createProject(projectId3, "Name of third", subjectId2);
+
+        //when
+        List<ProjectDto> projectDtoList = projectService.getProjectsBySubjectId(subjectId1);
+
+        //then
+        Assert.assertTrue(projectDtoList.isEmpty());
     }
 
     @Test(expected = SubjectNotFoundException.class)
@@ -208,7 +245,7 @@ public class ProjectServiceIT {
     @Test
     @Transactional
     @Rollback
-    public void shouldCreateProjectWithNullIdAndNoProjectsInRepository() throws MissingProjectNameException, MissingProjectSubjectIdException {
+    public void shouldCreateProjectWithGeneratedFirstId() throws MissingProjectNameException, MissingProjectSubjectIdException {
 
         //given
         Integer subjectId = 1;
@@ -235,7 +272,7 @@ public class ProjectServiceIT {
     @Test
     @Transactional
     @Rollback
-    public void shouldCreateProjectWithNullIdAndProjectsInRepository() throws MissingProjectNameException, MissingProjectSubjectIdException {
+    public void shouldCreateProjectWithConsecutiveIdGenerated() throws MissingProjectNameException, MissingProjectSubjectIdException {
 
         //given
         Integer subjectId = 1;

@@ -1,6 +1,5 @@
 package com.cv.demo.service;
 
-import com.cv.demo.assembler.SubjectAssembler;
 import com.cv.demo.backend.Project;
 import com.cv.demo.backend.Subject;
 import com.cv.demo.backend.repository.SubjectRepository;
@@ -12,7 +11,6 @@ import lombok.extern.log4j.Log4j2;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
@@ -22,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.cv.demo.backend.Subject.ARCHIVE_SUBJECT_ID;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -39,9 +39,7 @@ public class SubjectServiceIT {
     @Autowired
     private SubjectService subjectService;
 
-    private final SubjectAssembler subjectAssembler = Mappers.getMapper(SubjectAssembler.class);
-
-    private SubjectDto createSubjectDto(Integer subjectId, String abbreviation, String teacher){
+    private SubjectDto createSubjectDto(Integer subjectId, String abbreviation, String teacher) {
         SubjectDto subjectDto = new SubjectDto();
         subjectDto.setId(subjectId);
         subjectDto.setTeacher(teacher);
@@ -54,9 +52,8 @@ public class SubjectServiceIT {
     @Rollback
     public void shouldFindAllSubjects() {
         //given
-        Integer firstId = 0;
         Integer secondId = 4;
-        subjectITTool.createSubject(firstId, "ARCHIVE", LocalDateTime.of(2023, 1, 1, 0, 0, 1), LocalDateTime.of(2023, 1, 1, 0, 0, 1), "server", null);
+        subjectITTool.createSubject(ARCHIVE_SUBJECT_ID, "ARCHIVE", LocalDateTime.of(2023, 1, 1, 0, 0, 1), LocalDateTime.of(2023, 1, 1, 0, 0, 1), "server", null);
         subjectITTool.createSubject(secondId, "Abbreviation", "Teacher");
 
         //when
@@ -69,8 +66,21 @@ public class SubjectServiceIT {
         id.add(subjectsDto.get(0).getId());
         id.add(subjectsDto.get(1).getId());
 
-        Assert.assertTrue(id.contains(firstId));
+        Assert.assertTrue(id.contains(ARCHIVE_SUBJECT_ID));
         Assert.assertTrue(id.contains(secondId));
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void shouldReturnEmptyListWhenFindAllSubjects() {
+        //given
+
+        //when
+        List<SubjectDto> subjectsDto = subjectService.getAllSubjects();
+
+        //then
+        Assert.assertTrue(subjectsDto.isEmpty());
     }
 
     @Test
@@ -119,9 +129,23 @@ public class SubjectServiceIT {
         Assert.assertEquals(subjectId, Integer.valueOf(information[0]));
         Assert.assertEquals(projectId, Integer.valueOf(information[1]));
         Assert.assertEquals(abbreviation, information[2]);
-        Assert.assertEquals(name , information[3]);
+        Assert.assertEquals(name, information[3]);
         Assert.assertEquals(comment, information[4]);
         Assert.assertEquals(teacher, information[5]);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void shouldReturnEmptyListWhenFindAllSubjectsAndProjects() {
+
+        //given
+
+        //when
+        List<String> groupedList = subjectService.getAllSubjectsAndProjects();
+
+        //then
+        Assert.assertTrue(groupedList.isEmpty());
     }
 
     @Test
@@ -130,28 +154,45 @@ public class SubjectServiceIT {
     public void shouldFindSubjectsByTeacher() {
 
         //given
+        Integer subject1Id = 2;
+        Integer subject2Id = 4;
         String teacher = "Teacher1";
         subjectITTool.createSubject(1, "Abbreviation", "Teacher2");
         subjectITTool.createSubject(3, "Abbreviation2", "Teacher2");
-        Subject subject2 = subjectITTool.createSubject(2, "Abbreviation1", teacher);
-        Subject subject4 = subjectITTool.createSubject(4, "Abbreviation3", teacher);
-
-        List<SubjectDto> subjectsWithTeacher1New = new ArrayList<>();
-        SubjectDto subject2Dto = subjectAssembler.toDto(subject2);
-        SubjectDto subject4Dto = subjectAssembler.toDto(subject4);
-        subjectsWithTeacher1New.add(subject2Dto);
-        subjectsWithTeacher1New.add(subject4Dto);
-
+        subjectITTool.createSubject(subject1Id, "Abbreviation1", teacher);
+        subjectITTool.createSubject(subject2Id, "Abbreviation3", teacher);
         //when
-        List<SubjectDto> subjectsWithTeacher1 = subjectService.getSubjectsByTeacher(teacher);
+        List<SubjectDto> subjectsWithTeacher = subjectService.getSubjectsByTeacher(teacher);
 
         //then
-        Assert.assertEquals(2, subjectsWithTeacher1.size());
-        Assert.assertEquals(teacher, subjectsWithTeacher1.get(0).getTeacher());
-        Assert.assertEquals(teacher, subjectsWithTeacher1.get(1).getTeacher());
+        Assert.assertEquals(2, subjectsWithTeacher.size());
 
-        Assert.assertEquals(subjectsWithTeacher1New.get(0), subjectsWithTeacher1.get(0));
-        Assert.assertEquals(subjectsWithTeacher1New.get(1), subjectsWithTeacher1.get(1));
+
+        List<Integer> id = new ArrayList<>();
+        id.add(subjectsWithTeacher.get(0).getId());
+        id.add(subjectsWithTeacher.get(1).getId());
+
+        Assert.assertTrue(id.contains(subject1Id));
+        Assert.assertTrue(id.contains(subject2Id));
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void shouldReturnEmptyListWhenFindSubjectsByTeacher() {
+
+        //given
+        Integer subject1Id = 1;
+        Integer subject2Id = 3;
+        String teacher = "Teacher1";
+        subjectITTool.createSubject(subject1Id, "Abbreviation", "Teacher2");
+        subjectITTool.createSubject(subject2Id, "Abbreviation2", "Teacher2");
+
+        //when
+        List<SubjectDto> subjectsWithTeacher = subjectService.getSubjectsByTeacher(teacher);
+
+        //then
+        Assert.assertTrue(subjectsWithTeacher.isEmpty());
     }
 
     @Test(expected = SubjectNotFoundException.class)
@@ -235,7 +276,7 @@ public class SubjectServiceIT {
         String abbreviationNew = "Abbreviation2";
         Integer expectedId = 2;
 
-        SubjectDto subjectDtoNew = createSubjectDto(subjectIDNew , abbreviationNew , null);
+        SubjectDto subjectDtoNew = createSubjectDto(subjectIDNew, abbreviationNew, null);
 
         //when
         Subject subject = subjectService.saveOrUpdate(subjectDtoNew);
@@ -254,7 +295,7 @@ public class SubjectServiceIT {
         Integer subjectID = 1;
         String abbreviation = null;
 
-        SubjectDto subjectDtoNew = createSubjectDto(subjectID , abbreviation , null);
+        SubjectDto subjectDtoNew = createSubjectDto(subjectID, abbreviation, null);
 
         //when
         subjectService.saveOrUpdate(subjectDtoNew);
@@ -331,8 +372,7 @@ public class SubjectServiceIT {
 
         //given
         Integer subjectDeletedId = 4;
-        Integer subjectArchiveId = 0;
-        subjectITTool.createSubject(subjectArchiveId, "ARCHIVE", LocalDateTime.of(2023, 1, 1, 0, 0, 1), LocalDateTime.of(2023, 1, 1, 0, 0, 1), "server", null);
+        subjectITTool.createSubject(ARCHIVE_SUBJECT_ID, "ARCHIVE", LocalDateTime.of(2023, 1, 1, 0, 0, 1), LocalDateTime.of(2023, 1, 1, 0, 0, 1), "server", null);
         List<Project> projectsNew = new ArrayList<>();
         Project projectNew = projectITTool.createProject(1, "Tmp");
         projectsNew.add(projectNew);
@@ -346,11 +386,14 @@ public class SubjectServiceIT {
         Assert.assertEquals(1, subjects.size());
 
         Subject subject = subjects.get(0);
-        Assert.assertEquals(subjectArchiveId, subject.getId());
+        Assert.assertEquals(ARCHIVE_SUBJECT_ID, subject.getId());
 
         List<Project> projects = subject.getProjects();
         Assert.assertEquals(1, projects.size());
-        Assert.assertEquals(projectsNew, projects);
+
+        Project project = projects.get(0);
+        Assert.assertEquals(projectNew.getId(), project.getId());
+        Assert.assertEquals(projectNew.getName(), project.getName());
 
     }
 
@@ -359,10 +402,10 @@ public class SubjectServiceIT {
     @Rollback
     public void shouldNotDeleteNotExistingSubject() throws SubjectNotFoundException, DeletingArchiveSubjectException, ArchiveSubjectNotFoundException {
         //given
-        //no prerequisites
+        int notExistingSubjectId = 6;
 
         //when
-        subjectService.delete(6);
+        subjectService.delete(notExistingSubjectId);
 
         //then
         //exception expected
@@ -373,10 +416,10 @@ public class SubjectServiceIT {
     @Rollback
     public void shouldNotDeleteArchiveSubject() throws SubjectNotFoundException, DeletingArchiveSubjectException, ArchiveSubjectNotFoundException {
         //given
-        subjectITTool.createSubject(0, "ARCHIVE", LocalDateTime.of(2023, 1, 1, 0, 0, 1), LocalDateTime.of(2023, 1, 1, 0, 0, 1), "server", null);
+        subjectITTool.createSubject(ARCHIVE_SUBJECT_ID, "ARCHIVE", LocalDateTime.of(2023, 1, 1, 0, 0, 1), LocalDateTime.of(2023, 1, 1, 0, 0, 1), "server", null);
 
         //when
-        subjectService.delete(0);
+        subjectService.delete(ARCHIVE_SUBJECT_ID);
 
         //then
         //exception expected

@@ -28,7 +28,7 @@ import java.util.Objects;
 @Table(name = "SUBJECT")
 public class Subject {
 
-    public static final int ARCHIVE_SUBJECT_ID = 0;
+    public static final Integer ARCHIVE_SUBJECT_ID = 0;
 
     @Id
     @Column(name = "ID")

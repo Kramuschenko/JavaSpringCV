@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.cv.demo.backend.Subject.ARCHIVE_SUBJECT_ID;
+
 @Log4j2
 @Service
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -106,7 +108,7 @@ public class SubjectService {
         subject.setAbbreviation(subjectDto.getAbbreviation());
         subject.setModifiedAt(LocalDateTime.now());
 
-        log.info("Subject {} has been created or updated", subjectId == 0 ? "\"New\"" : subjectId);
+        log.info("Subject {} has been created or updated", subjectId == subjectRepository.generateNextSubjectId()-1 ? "\"New\"" : subjectId);
         log.debug("Created or updated: {}", subject);
         return subjectRepository.save(subject);
     }
@@ -116,7 +118,7 @@ public class SubjectService {
             log.error("Subject abbreviation is null");
             throw new MissingSubjectAbbreviationException();
         }
-        if (subjectDto.getId() == 0) {
+        if (subjectDto.getId() == ARCHIVE_SUBJECT_ID) {
             throw new UpdatingArchiveSubjectException();
         }
     }
@@ -124,14 +126,14 @@ public class SubjectService {
     @Transactional
     public void delete(Integer id) throws SubjectNotFoundException, DeletingArchiveSubjectException, ArchiveSubjectNotFoundException {
 
-        if (id == 0) {
+        if (id == ARCHIVE_SUBJECT_ID) {
             throw new DeletingArchiveSubjectException();
         }
 
         Subject subject = subjectRepository.findById(id).orElseThrow(SubjectNotFoundException::new);
 
         if (!subject.getProjects().isEmpty()) {
-            log.error("In subject you wanted to remove were projects ; Projects were moved to Archive ; Archive id : 0");
+            log.error("In subject you wanted to remove were projects ; Projects were moved to Archive ; Archive id : {}", ARCHIVE_SUBJECT_ID);
             moveProjectsToArchive(subject);
         }
         log.info("Subject {} was deleted", id);
@@ -142,7 +144,7 @@ public class SubjectService {
 
     private void moveProjectsToArchive(Subject subject) throws ArchiveSubjectNotFoundException {
         List<Project> projectsToReplace = new ArrayList<>(subject.getProjects());
-        Optional<Subject> subjectArchiveOpt = subjectRepository.findById(0);
+        Optional<Subject> subjectArchiveOpt = subjectRepository.findById(ARCHIVE_SUBJECT_ID);
 
         Subject subjectArchive = subjectArchiveOpt.orElseThrow(ArchiveSubjectNotFoundException::new);
 
