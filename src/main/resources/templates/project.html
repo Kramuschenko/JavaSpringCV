@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add New Project</title>
+</head>
+<body>
+<h1>Add New Project</h1>
+<form action="/project" method="post">
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name">
+    </div>
+    <div>
+        <label for="comment">Comment:</label>
+        <input type="text" id="comment" name="comment">
+    </div>
+    <div>
+        <label for="subjectId">Subject Id:</label>
+        <input type="text" id="subjectId" name="subjectId">
+    </div>
+    <div>
+        <input type="submit" formaction="http://localhost:8082/project" value="save">
+    </div>
+</form>
+</body>
+<button onclick="window.location.href = 'main.html';">Back</button>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add New Subject</title>
+</head>
+<body>
+<h1>Add New Subject</h1>
+<form action="/subject" method="post">
+
+    <var
+        type="text" id="id" name="id"
+        id = null
+    ></var>
+    <div>
+        <label for="abbreviation">Abbreviation:</label>
+        <input type="text" id="abbreviation" name="abbreviation">
+    </div>
+    <div>
+        <label for="teacher">Teacher:</label>
+        <input type="text" id="teacher" name="teacher">
+    </div>
+    <div>
+        <input type="submit" formaction="http://localhost:8082/subject" value="save">
+    </div>
+</form>
+</body>
+<button onclick="window.location.href = 'main.html';">Back</button>
+</html>
