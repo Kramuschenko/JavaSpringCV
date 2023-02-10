@@ -4,17 +4,18 @@ import com.cv.demo.backend.Project;
 import com.cv.demo.backend.Subject;
 import com.cv.demo.backend.repository.SubjectRepository;
 import com.cv.demo.dto.SubjectDto;
-import com.cv.demo.exception.*;
+import com.cv.demo.exception.ArchiveSubjectNotFoundException;
+import com.cv.demo.exception.DeletingArchiveSubjectException;
+import com.cv.demo.exception.MissingSubjectAbbreviationException;
+import com.cv.demo.exception.SubjectNotFoundException;
+import com.cv.demo.exception.UpdatingArchiveSubjectException;
 import com.cv.demo.tools.ProjectITTool;
 import com.cv.demo.tools.SubjectITTool;
 import lombok.extern.log4j.Log4j2;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -22,9 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.cv.demo.backend.Subject.ARCHIVE_SUBJECT_ID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@RunWith(SpringRunner.class)
 @Log4j2
 public class SubjectServiceIT {
     @Autowired
@@ -53,21 +56,21 @@ public class SubjectServiceIT {
     public void shouldFindAllSubjects() {
         //given
         Integer secondId = 4;
-        subjectITTool.createSubject(ARCHIVE_SUBJECT_ID, "ARCHIVE", LocalDateTime.of(2023, 1, 1, 0, 0, 1), LocalDateTime.of(2023, 1, 1, 0, 0, 1), "server", null);
+        subjectITTool.createSubject(ARCHIVE_SUBJECT_ID, "ARCHIVE", "server", null, LocalDateTime.of(2023, 1, 1, 0, 0, 1), LocalDateTime.of(2023, 1, 1, 0, 0, 1));
         subjectITTool.createSubject(secondId, "Abbreviation", "Teacher");
 
         //when
         List<SubjectDto> subjectsDto = subjectService.getAllSubjects();
 
         //then
-        Assert.assertEquals(2, subjectsDto.size());
+        assertEquals(2, subjectsDto.size());
 
         List<Integer> id = new ArrayList<>();
         id.add(subjectsDto.get(0).getId());
         id.add(subjectsDto.get(1).getId());
 
-        Assert.assertTrue(id.contains(ARCHIVE_SUBJECT_ID));
-        Assert.assertTrue(id.contains(secondId));
+        assertTrue(id.contains(ARCHIVE_SUBJECT_ID));
+        assertTrue(id.contains(secondId));
     }
 
     @Test
@@ -80,7 +83,7 @@ public class SubjectServiceIT {
         List<SubjectDto> subjectsDto = subjectService.getAllSubjects();
 
         //then
-        Assert.assertTrue(subjectsDto.isEmpty());
+        assertTrue(subjectsDto.isEmpty());
     }
 
     @Test
@@ -91,16 +94,17 @@ public class SubjectServiceIT {
         Integer subjectID = 4;
         String abbreviation = "Abbreviation";
         String teacher = "Teacher";
+        List<Project> projects = new ArrayList<>();
 
-        subjectITTool.createSubject(subjectID, abbreviation, teacher);
+        subjectITTool.createSubject(subjectID, abbreviation, teacher, projects);
 
         //when
         SubjectDto subjectDto = subjectService.getSubjectById(subjectID);
 
         //then
-        Assert.assertEquals(subjectID, subjectDto.getId());
-        Assert.assertEquals(abbreviation, subjectDto.getAbbreviation());
-        Assert.assertEquals(teacher, subjectDto.getTeacher());
+        assertEquals(subjectID, subjectDto.getId());
+        assertEquals(abbreviation, subjectDto.getAbbreviation());
+        assertEquals(teacher, subjectDto.getTeacher());
     }
 
     @Test
@@ -123,15 +127,15 @@ public class SubjectServiceIT {
 
         //then
 
-        Assert.assertEquals(1, groupedList.size());
+        assertEquals(1, groupedList.size());
 
         String[] information = groupedList.get(0).split(",");
-        Assert.assertEquals(subjectId, Integer.valueOf(information[0]));
-        Assert.assertEquals(projectId, Integer.valueOf(information[1]));
-        Assert.assertEquals(abbreviation, information[2]);
-        Assert.assertEquals(name, information[3]);
-        Assert.assertEquals(comment, information[4]);
-        Assert.assertEquals(teacher, information[5]);
+        assertEquals(subjectId, Integer.valueOf(information[0]));
+        assertEquals(projectId, Integer.valueOf(information[1]));
+        assertEquals(abbreviation, information[2]);
+        assertEquals(name, information[3]);
+        assertEquals(comment, information[4]);
+        assertEquals(teacher, information[5]);
     }
 
     @Test
@@ -145,7 +149,7 @@ public class SubjectServiceIT {
         List<String> groupedList = subjectService.getAllSubjectsAndProjects();
 
         //then
-        Assert.assertTrue(groupedList.isEmpty());
+        assertTrue(groupedList.isEmpty());
     }
 
     @Test
@@ -165,15 +169,15 @@ public class SubjectServiceIT {
         List<SubjectDto> subjectsWithTeacher = subjectService.getSubjectsByTeacher(teacher);
 
         //then
-        Assert.assertEquals(2, subjectsWithTeacher.size());
+        assertEquals(2, subjectsWithTeacher.size());
 
 
         List<Integer> id = new ArrayList<>();
         id.add(subjectsWithTeacher.get(0).getId());
         id.add(subjectsWithTeacher.get(1).getId());
 
-        Assert.assertTrue(id.contains(subject1Id));
-        Assert.assertTrue(id.contains(subject2Id));
+        assertTrue(id.contains(subject1Id));
+        assertTrue(id.contains(subject2Id));
     }
 
     @Test
@@ -192,18 +196,20 @@ public class SubjectServiceIT {
         List<SubjectDto> subjectsWithTeacher = subjectService.getSubjectsByTeacher(teacher);
 
         //then
-        Assert.assertTrue(subjectsWithTeacher.isEmpty());
+        assertTrue(subjectsWithTeacher.isEmpty());
     }
 
-    @Test(expected = SubjectNotFoundException.class)
+    @Test
     @Transactional
     @Rollback
-    public void shouldNotFindNotExistingSubject() throws SubjectNotFoundException {
+    public void shouldNotFindNotExistingSubject() {
         //given
         Integer notExistingSubjectID = 2;
 
         //when
-        subjectService.getSubjectById(notExistingSubjectID);
+        assertThrows(SubjectNotFoundException.class, () -> {
+            subjectService.getSubjectById(notExistingSubjectID);
+        });
 
         //then
         //exception expected
@@ -228,18 +234,18 @@ public class SubjectServiceIT {
         LocalDateTime after = LocalDateTime.now().plusSeconds(1L);
         List<Subject> subjects = subjectRepository.findAll();
 
-        Assert.assertEquals(1, subjects.size());
+        assertEquals(1, subjects.size());
 
         Subject subject = subjects.get(0);
 
-        Assert.assertEquals(subjectID, subject.getId());
-        Assert.assertEquals(abbreviation, subject.getAbbreviation());
-        Assert.assertEquals(teacher, subject.getTeacher());
-        Assert.assertTrue(before.isBefore(subject.getCreatedAt()));
-        Assert.assertTrue(after.isAfter(subject.getCreatedAt()));
-        Assert.assertTrue(before.isBefore(subject.getModifiedAt()));
-        Assert.assertTrue(after.isAfter(subject.getModifiedAt()));
-        Assert.assertTrue(subject.getProjects().isEmpty());
+        assertEquals(subjectID, subject.getId());
+        assertEquals(abbreviation, subject.getAbbreviation());
+        assertEquals(teacher, subject.getTeacher());
+        assertTrue(before.isBefore(subject.getCreatedAt()));
+        assertTrue(after.isAfter(subject.getCreatedAt()));
+        assertTrue(before.isBefore(subject.getModifiedAt()));
+        assertTrue(after.isAfter(subject.getModifiedAt()));
+        assertTrue(subject.getProjects().isEmpty());
     }
 
     @Test
@@ -258,8 +264,8 @@ public class SubjectServiceIT {
 
         //then
         List<Subject> subjects = subjectRepository.findAll();
-        Assert.assertEquals(1, subjects.size());
-        Assert.assertEquals(expectedId, subjects.get(0).getId());
+        assertEquals(1, subjects.size());
+        assertEquals(expectedId, subjects.get(0).getId());
     }
 
     @Test
@@ -283,14 +289,14 @@ public class SubjectServiceIT {
 
         //then
         List<Subject> subjects = subjectRepository.findAll();
-        Assert.assertEquals(2, subjects.size());
-        Assert.assertEquals(expectedId, subject.getId());
+        assertEquals(2, subjects.size());
+        assertEquals(expectedId, subject.getId());
     }
 
-    @Test(expected = MissingSubjectAbbreviationException.class)
+    @Test
     @Transactional
     @Rollback
-    public void shouldNotCreateSubjectWithNullAbbreviation() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
+    public void shouldNotCreateSubjectWithNullAbbreviation() {
         //given
         Integer subjectID = 1;
         String abbreviation = null;
@@ -298,7 +304,9 @@ public class SubjectServiceIT {
         SubjectDto subjectDtoNew = createSubjectDto(subjectID, abbreviation, null);
 
         //when
-        subjectService.saveOrUpdate(subjectDtoNew);
+        assertThrows(MissingSubjectAbbreviationException.class, () -> {
+            subjectService.saveOrUpdate(subjectDtoNew);
+        });
 
         //then
         //exception expected
@@ -323,7 +331,7 @@ public class SubjectServiceIT {
         LocalDateTime createdAt = LocalDateTime.of(2020, 6, 7, 12, 30, 25);
         LocalDateTime modifiedAt = LocalDateTime.of(2022, 1, 1, 0, 0, 1);
 
-        subjectITTool.createSubject(subjectId, abbreviation, createdAt, modifiedAt, teacher, projectsNew);
+        subjectITTool.createSubject(subjectId, abbreviation, teacher, projectsNew, createdAt, modifiedAt);
 
         SubjectDto subjectDto = createSubjectDto(subjectId, abbreviationNew, teacher);
 
@@ -336,18 +344,18 @@ public class SubjectServiceIT {
         LocalDateTime after = LocalDateTime.now().plusSeconds(1L);
 
         List<Subject> subjects = subjectRepository.findAll();
-        Assert.assertEquals(1, subjects.size());
+        assertEquals(1, subjects.size());
 
         Subject subject = subjects.get(0);
 
-        Assert.assertEquals(subjectId, subject.getId());
-        Assert.assertEquals(abbreviationNew, subject.getAbbreviation());
-        Assert.assertTrue(before.isBefore(subject.getModifiedAt()));
-        Assert.assertTrue(after.isAfter(subject.getModifiedAt()));
+        assertEquals(subjectId, subject.getId());
+        assertEquals(abbreviationNew, subject.getAbbreviation());
+        assertTrue(before.isBefore(subject.getModifiedAt()));
+        assertTrue(after.isAfter(subject.getModifiedAt()));
 
         List<Project> projects = subject.getProjects();
-        Assert.assertEquals(1, projects.size());
-        Assert.assertEquals(projectId, projects.get(0).getId());
+        assertEquals(1, projects.size());
+        assertEquals(projectId, projects.get(0).getId());
     }
 
     @Test
@@ -362,7 +370,7 @@ public class SubjectServiceIT {
 
         //then
         long count = subjectRepository.count();
-        Assert.assertEquals(0, count);
+        assertEquals(0, count);
     }
 
     @Test
@@ -372,7 +380,7 @@ public class SubjectServiceIT {
 
         //given
         Integer subjectDeletedId = 4;
-        subjectITTool.createSubject(ARCHIVE_SUBJECT_ID, "ARCHIVE", LocalDateTime.of(2023, 1, 1, 0, 0, 1), LocalDateTime.of(2023, 1, 1, 0, 0, 1), "server", null);
+        subjectITTool.createSubject(ARCHIVE_SUBJECT_ID, "ARCHIVE", "server", null, LocalDateTime.of(2023, 1, 1, 0, 0, 1), LocalDateTime.of(2023, 1, 1, 0, 0, 1));
         List<Project> projectsNew = new ArrayList<>();
         Project projectNew = projectITTool.createProject(1, "Tmp");
         projectsNew.add(projectNew);
@@ -383,52 +391,57 @@ public class SubjectServiceIT {
 
         //then
         List<Subject> subjects = subjectRepository.findAll();
-        Assert.assertEquals(1, subjects.size());
+        assertEquals(1, subjects.size());
 
         Subject subject = subjects.get(0);
-        Assert.assertEquals(ARCHIVE_SUBJECT_ID, subject.getId());
+        assertEquals(ARCHIVE_SUBJECT_ID, subject.getId());
 
         List<Project> projects = subject.getProjects();
-        Assert.assertEquals(1, projects.size());
+        assertEquals(1, projects.size());
 
         Project project = projects.get(0);
-        Assert.assertEquals(projectNew.getId(), project.getId());
-        Assert.assertEquals(projectNew.getName(), project.getName());
+        assertEquals(projectNew.getId(), project.getId());
+        assertEquals(projectNew.getName(), project.getName());
 
     }
 
-    @Test(expected = SubjectNotFoundException.class)
+    @Test
     @Transactional
     @Rollback
-    public void shouldNotDeleteNotExistingSubject() throws SubjectNotFoundException, DeletingArchiveSubjectException, ArchiveSubjectNotFoundException {
+    public void shouldNotDeleteNotExistingSubject() {
         //given
         int notExistingSubjectId = 6;
 
         //when
-        subjectService.delete(notExistingSubjectId);
+
+        assertThrows(SubjectNotFoundException.class, () -> {
+            subjectService.delete(notExistingSubjectId);
+        });
 
         //then
         //exception expected
     }
 
-    @Test(expected = DeletingArchiveSubjectException.class)
+    @Test
     @Transactional
     @Rollback
-    public void shouldNotDeleteArchiveSubject() throws SubjectNotFoundException, DeletingArchiveSubjectException, ArchiveSubjectNotFoundException {
+    public void shouldNotDeleteArchiveSubject() {
         //given
-        subjectITTool.createSubject(ARCHIVE_SUBJECT_ID, "ARCHIVE", LocalDateTime.of(2023, 1, 1, 0, 0, 1), LocalDateTime.of(2023, 1, 1, 0, 0, 1), "server", null);
+        subjectITTool.createSubject(ARCHIVE_SUBJECT_ID, "ARCHIVE", "server", null, LocalDateTime.of(2023, 1, 1, 0, 0, 1), LocalDateTime.of(2023, 1, 1, 0, 0, 1));
 
         //when
-        subjectService.delete(ARCHIVE_SUBJECT_ID);
+        assertThrows(DeletingArchiveSubjectException.class, () -> {
+            subjectService.delete(ARCHIVE_SUBJECT_ID);
+        });
 
         //then
         //exception expected
     }
 
-    @Test(expected = ArchiveSubjectNotFoundException.class)
+    @Test
     @Transactional
     @Rollback
-    public void shouldNotDeleteSubjectWithProjectsAndNoArchive() throws SubjectNotFoundException, DeletingArchiveSubjectException, ArchiveSubjectNotFoundException {
+    public void shouldNotDeleteSubjectWithProjectsAndNoArchive() {
 
         //given
         Integer subjectDeletedId = 4;
@@ -440,7 +453,9 @@ public class SubjectServiceIT {
         subjectITTool.createSubject(subjectDeletedId, "Abbreviation", "Teacher", projectsNew);
 
         //when
-        subjectService.delete(subjectDeletedId);
+        assertThrows(ArchiveSubjectNotFoundException.class, () -> {
+            subjectService.delete(subjectDeletedId);
+        });
 
         //then
         //exception expected

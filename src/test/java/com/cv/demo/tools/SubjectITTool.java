@@ -24,16 +24,16 @@ public class SubjectITTool {
 
     @Transactional
     public Subject createSubject(Integer id, String abbreviation, String teacher) {
-        return createSubject(id, abbreviation, null, null, teacher, null);
+        return createSubject(id, abbreviation, teacher, null, null, null);
     }
 
     @Transactional
     public Subject createSubject(Integer id, String abbreviation, String teacher, List<Project> projects) {
-        return createSubject(id, abbreviation, null, null, teacher, projects);
+        return createSubject(id, abbreviation, teacher, projects, null , null);
     }
 
     @Transactional
-    public Subject createSubject(Integer id, String abbreviation, LocalDateTime createdAt, LocalDateTime modifiedAt, String teacher, List<Project> projects) {
+    public Subject createSubject(Integer id, String abbreviation, String teacher, List<Project> projects, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         Subject subject = new Subject();
 
         subject.setId(id);

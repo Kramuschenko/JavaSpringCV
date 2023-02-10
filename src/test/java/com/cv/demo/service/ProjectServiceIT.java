@@ -11,22 +11,22 @@ import com.cv.demo.exception.SubjectNotFoundException;
 import com.cv.demo.tools.ProjectITTool;
 import com.cv.demo.tools.SubjectITTool;
 import lombok.extern.log4j.Log4j2;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @Log4j2
-@RunWith(SpringRunner.class)
 @SpringBootTest
 public class ProjectServiceIT {
     @Autowired
@@ -69,22 +69,24 @@ public class ProjectServiceIT {
         ProjectDto project = projectService.getProjectById(projectId);
 
         //then
-        Assert.assertEquals(projectId, project.getId());
-        Assert.assertEquals(subjectID, project.getSubjectId());
-        Assert.assertEquals(name, project.getName());
-        Assert.assertEquals(comment, project.getComment());
+        assertEquals(projectId, project.getId());
+        assertEquals(subjectID, project.getSubjectId());
+        assertEquals(name, project.getName());
+        assertEquals(comment, project.getComment());
 
     }
 
-    @Test(expected = ProjectNotFoundException.class)
+    @Test
     @Transactional
     @Rollback
-    public void shouldNotFindProjectByNotExistingProjectId() throws ProjectNotFoundException {
+    public void shouldNotFindProjectByNotExistingProjectId() {
         //given
         int notExistingProjectId = 1;
 
         //when
-        projectService.getProjectById(notExistingProjectId);
+        assertThrows(ProjectNotFoundException.class, () -> {
+            projectService.getProjectById(notExistingProjectId);
+        });
 
         //then
         //exception expected
@@ -106,16 +108,16 @@ public class ProjectServiceIT {
         List<ProjectDto> projectDtoList = projectService.getAllProjects();
 
         //then
-        Assert.assertEquals(3, projectDtoList.size());
+        assertEquals(3, projectDtoList.size());
 
         List<Integer> id = new ArrayList<>();
         id.add(projectDtoList.get(0).getId());
         id.add(projectDtoList.get(1).getId());
         id.add(projectDtoList.get(2).getId());
 
-        Assert.assertTrue(id.contains(10));
-        Assert.assertTrue(id.contains(11));
-        Assert.assertTrue(id.contains(12));
+        assertTrue(id.contains(10));
+        assertTrue(id.contains(11));
+        assertTrue(id.contains(12));
     }
 
     @Test
@@ -128,7 +130,7 @@ public class ProjectServiceIT {
         List<ProjectDto> projectDtoList = projectService.getAllProjects();
 
         //then
-        Assert.assertTrue(projectDtoList.isEmpty());
+        assertTrue(projectDtoList.isEmpty());
     }
 
     @Test
@@ -151,14 +153,14 @@ public class ProjectServiceIT {
         List<ProjectDto> projectDtoList = projectService.getProjectsBySubjectId(subjectId1);
 
         //then
-        Assert.assertEquals(2, projectDtoList.size());
+        assertEquals(2, projectDtoList.size());
 
         List<Integer> id = new ArrayList<>();
         id.add(projectDtoList.get(0).getId());
         id.add(projectDtoList.get(1).getId());
 
-        Assert.assertTrue(id.contains(projectId1));
-        Assert.assertTrue(id.contains(projectId2));
+        assertTrue(id.contains(projectId1));
+        assertTrue(id.contains(projectId2));
     }
 
     @Test
@@ -182,13 +184,13 @@ public class ProjectServiceIT {
         List<ProjectDto> projectDtoList = projectService.getProjectsBySubjectId(subjectId1);
 
         //then
-        Assert.assertTrue(projectDtoList.isEmpty());
+        assertTrue(projectDtoList.isEmpty());
     }
 
-    @Test(expected = SubjectNotFoundException.class)
+    @Test
     @Transactional
     @Rollback
-    public void shouldNotFindProjectByNotExistingSubjectId() throws SubjectNotFoundException {
+    public void shouldNotFindProjectByNotExistingSubjectId() {
 
         //given
         int subjectId = 1;
@@ -199,7 +201,9 @@ public class ProjectServiceIT {
         projectITTool.createProject(projectId, "test", subjectId);
 
         //when
-        projectService.getProjectsBySubjectId(notExistingSubjectId);
+        assertThrows(SubjectNotFoundException.class, () -> {
+            projectService.getProjectsBySubjectId(notExistingSubjectId);
+        });
 
         //then
         //exception expected
@@ -228,18 +232,18 @@ public class ProjectServiceIT {
         LocalDateTime after = LocalDateTime.now().plusSeconds(1L);
 
         List<Project> projects = projectRepository.findAll();
-        Assert.assertEquals(1, projects.size());
+        assertEquals(1, projects.size());
 
         Project project = projects.get(0);
 
-        Assert.assertEquals(projectId, project.getId());
-        Assert.assertEquals(name, project.getName());
-        Assert.assertEquals(comment, project.getComment());
-        Assert.assertEquals(subjectId, project.getSubjectId());
-        Assert.assertTrue(before.isBefore(project.getCreatedAt()));
-        Assert.assertTrue(after.isAfter(project.getCreatedAt()));
-        Assert.assertTrue(before.isBefore(project.getModifiedAt()));
-        Assert.assertTrue(after.isAfter(project.getModifiedAt()));
+        assertEquals(projectId, project.getId());
+        assertEquals(name, project.getName());
+        assertEquals(comment, project.getComment());
+        assertEquals(subjectId, project.getSubjectId());
+        assertTrue(before.isBefore(project.getCreatedAt()));
+        assertTrue(after.isAfter(project.getCreatedAt()));
+        assertTrue(before.isBefore(project.getModifiedAt()));
+        assertTrue(after.isAfter(project.getModifiedAt()));
     }
 
     @Test
@@ -262,11 +266,11 @@ public class ProjectServiceIT {
 
         //then
         List<Project> projects = projectRepository.findAll();
-        Assert.assertEquals(1, projects.size());
+        assertEquals(1, projects.size());
 
         Project project = projects.get(0);
 
-        Assert.assertEquals(expectedId, project.getId());
+        assertEquals(expectedId, project.getId());
     }
 
     @Test
@@ -293,16 +297,16 @@ public class ProjectServiceIT {
 
         //then
         List<Project> projects = projectRepository.findAll();
-        Assert.assertEquals(2, projects.size());
+        assertEquals(2, projects.size());
 
         Project project = projects.get(1);
-        Assert.assertEquals(expectedId, project.getId());
+        assertEquals(expectedId, project.getId());
     }
 
-    @Test(expected = MissingProjectSubjectIdException.class)
+    @Test
     @Transactional
     @Rollback
-    public void shouldNotCreateProjectWithNullSubjectID() throws MissingProjectNameException, MissingProjectSubjectIdException {
+    public void shouldNotCreateProjectWithNullSubjectID() {
 
         //given
         Integer subjectId = null;
@@ -313,16 +317,19 @@ public class ProjectServiceIT {
         ProjectDto projectNewDto = projectDto(projectId, name, comment, subjectId);
 
         //when
-        projectService.saveOrUpdate(projectNewDto);
+        assertThrows(MissingProjectSubjectIdException.class, () -> {
+            projectService.saveOrUpdate(projectNewDto);
+        });
+
 
         //then
         //exception expected
     }
 
-    @Test(expected = MissingProjectNameException.class)
+    @Test
     @Transactional
     @Rollback
-    public void shouldNotCreateProjectWithNullName() throws MissingProjectNameException, MissingProjectSubjectIdException {
+    public void shouldNotCreateProjectWithNullName() {
 
         //given
         Integer subjectId = 1;
@@ -334,7 +341,9 @@ public class ProjectServiceIT {
         ProjectDto projectNewDto = projectDto(projectId, name, comment, subjectId);
 
         //when
-        projectService.saveOrUpdate(projectNewDto);
+        assertThrows(MissingProjectNameException.class, () -> {
+            projectService.saveOrUpdate(projectNewDto);
+        });
 
         //then
         //exception expected
@@ -367,15 +376,15 @@ public class ProjectServiceIT {
         LocalDateTime after = LocalDateTime.now().plusSeconds(1L);
 
         List<Project> projects = projectRepository.findAll();
-        Assert.assertEquals(1, projects.size());
+        assertEquals(1, projects.size());
 
         Project project = projects.get(0);
 
-        Assert.assertEquals(projectId, project.getId());
-        Assert.assertEquals(commentNew, project.getComment());
-        Assert.assertEquals(projectNew.getCreatedAt(), project.getCreatedAt());
-        Assert.assertTrue(before.isBefore(project.getModifiedAt()));
-        Assert.assertTrue(after.isAfter(project.getModifiedAt()));
+        assertEquals(projectId, project.getId());
+        assertEquals(commentNew, project.getComment());
+        assertEquals(projectNew.getCreatedAt(), project.getCreatedAt());
+        assertTrue(before.isBefore(project.getModifiedAt()));
+        assertTrue(after.isAfter(project.getModifiedAt()));
     }
 
     @Test
@@ -395,13 +404,13 @@ public class ProjectServiceIT {
 
         //then
         long count = projectRepository.count();
-        Assert.assertEquals(0, count);
+        assertEquals(0, count);
     }
 
-    @Test(expected = ProjectNotFoundException.class)
+    @Test
     @Transactional
     @Rollback
-    public void shouldNotDeleteNotExistingProject() throws ProjectNotFoundException {
+    public void shouldNotDeleteNotExistingProject()  {
 
         //given
         int subjectId = 1;
@@ -412,7 +421,9 @@ public class ProjectServiceIT {
         projectITTool.createProject(projectId, "test", subjectId);
 
         //when
-        projectService.delete(notExistingProjectId);
+        assertThrows(ProjectNotFoundException.class, () -> {
+            projectService.delete(notExistingProjectId);
+        });
 
         //then
         //exception expected

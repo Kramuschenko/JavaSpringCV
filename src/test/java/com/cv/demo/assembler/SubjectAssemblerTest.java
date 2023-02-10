@@ -2,9 +2,11 @@ package com.cv.demo.assembler;
 
 import com.cv.demo.backend.Subject;
 import com.cv.demo.dto.SubjectDto;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class SubjectAssemblerTest {
 
@@ -22,9 +24,9 @@ public class SubjectAssemblerTest {
         Subject entity = mapper.fromDto(dto);
 
         //then
-        Assert.assertEquals(dto.getId(), entity.getId());
-        Assert.assertEquals(dto.getAbbreviation(), entity.getAbbreviation());
-        Assert.assertEquals(dto.getTeacher(), entity.getTeacher());
+        assertEquals(dto.getId(), entity.getId());
+        assertEquals(dto.getAbbreviation(), entity.getAbbreviation());
+        assertEquals(dto.getTeacher(), entity.getTeacher());
     }
 
     @Test
@@ -40,9 +42,9 @@ public class SubjectAssemblerTest {
         SubjectDto dto = mapper.toDto(entity);
 
         //then
-        Assert.assertEquals(entity.getId(), dto.getId());
-        Assert.assertEquals(entity.getAbbreviation(), dto.getAbbreviation());
-        Assert.assertEquals(entity.getTeacher(), dto.getTeacher());
+        assertEquals(entity.getId(), dto.getId());
+        assertEquals(entity.getAbbreviation(), dto.getAbbreviation());
+        assertEquals(entity.getTeacher(), dto.getTeacher());
     }
 
     @Test
@@ -54,7 +56,7 @@ public class SubjectAssemblerTest {
         SubjectDto subjectDto = mapper.toDto(subject);
 
         //then
-        Assert.assertNull(subjectDto);
+        assertNull(subjectDto);
     }
 
     @Test
@@ -66,7 +68,7 @@ public class SubjectAssemblerTest {
         Subject subject = mapper.fromDto(subjectDto);
 
         //then
-        Assert.assertNull(subject);
+        assertNull(subject);
     }
 
 }

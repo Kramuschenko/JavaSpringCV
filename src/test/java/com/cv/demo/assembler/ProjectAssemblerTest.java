@@ -2,9 +2,11 @@ package com.cv.demo.assembler;
 
 import com.cv.demo.backend.Project;
 import com.cv.demo.dto.ProjectDto;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class ProjectAssemblerTest {
 
@@ -23,10 +25,10 @@ public class ProjectAssemblerTest {
         Project entity = mapper.fromDto(dto);
 
         //then
-        Assert.assertEquals(dto.getId(), entity.getId());
-        Assert.assertEquals(dto.getName(), entity.getName());
-        Assert.assertEquals(dto.getComment(), entity.getComment());
-        Assert.assertEquals(dto.getSubjectId(), entity.getSubjectId());
+        assertEquals(dto.getId(), entity.getId());
+        assertEquals(dto.getName(), entity.getName());
+        assertEquals(dto.getComment(), entity.getComment());
+        assertEquals(dto.getSubjectId(), entity.getSubjectId());
     }
 
     @Test
@@ -42,10 +44,10 @@ public class ProjectAssemblerTest {
         ProjectDto dto = mapper.toDto(entity);
 
         //then
-        Assert.assertEquals(entity.getId(), dto.getId());
-        Assert.assertEquals(entity.getName(), dto.getName());
-        Assert.assertEquals(entity.getComment(), dto.getComment());
-        Assert.assertEquals(entity.getSubjectId(), dto.getSubjectId());
+        assertEquals(entity.getId(), dto.getId());
+        assertEquals(entity.getName(), dto.getName());
+        assertEquals(entity.getComment(), dto.getComment());
+        assertEquals(entity.getSubjectId(), dto.getSubjectId());
     }
 
     @Test
@@ -57,7 +59,7 @@ public class ProjectAssemblerTest {
         ProjectDto projectDto = mapper.toDto(project);
 
         //then
-        Assert.assertNull(projectDto);
+        assertNull(projectDto);
     }
 
     @Test
@@ -69,6 +71,6 @@ public class ProjectAssemblerTest {
         Project project = mapper.fromDto(projectDto);
 
         //then
-        Assert.assertNull(project);
+        assertNull(project);
     }
 }
