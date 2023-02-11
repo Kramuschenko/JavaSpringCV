@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "web.filter.cors.allowed-methods",
+      "type": "java.lang.String",
+      "description": "Description for web.filter.cors.allowed-methods."
+    }
+  ]
+}

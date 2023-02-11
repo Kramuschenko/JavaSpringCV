@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+
+* {
+    font-family: 'Poppins', sans-serif;
+    padding: 0px;
+    margin: 0px;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    background-image: url(img/background.jpg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.container {
+    color: #fff;
+}
+
+.welcome {
+    font-size: 44px;
+    text-align: center;
+}
+
+.card {
+    width: 200px;
+    padding: 16px 20px;
+    background-color: #202020;
+    border-radius: 25px;
+}
+
+.logInText {
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.label-text {
+    font-size: 14px;
+}
+
+.inputInfo {
+    background: none;
+    width: 198px;
+    box-shadow: none;
+    padding-left: 4px;
+    color: #fff;
+    border-style: solid;
+    margin-bottom: 12px;
+    border-radius: 5px;
+    border-color: #404040;
+    border-width: 1px;
+    transition: all 0.2s ease-in-out;
+}
+
+.signUp-link {
+    display: flex;
+    margin-bottom: 24px;
+}
+
+.signUp-text {
+    font-size: 12px;
+}
+
+a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.btn-submit {
+    margin-left: 62px;
+    width: 70px;
+    background: none;
+    border-radius: 5px;
+    border-color: #404040;
+    border-width: 1px;
+    box-shadow: none;
+    color: #fff;
+    padding: 4px;
+    border-style: solid;
+    transition: all 0.2s ease-in-out;
+    margin-bottom: 8px;
+}
+
+.btn-submit:hover {
+    border-color: #fff;
+}
+
+.inputInfo:hover {
+    border-color: #fff;
+}
+
+.empty {
+    height: 200px;
+}
+
+.center {
+    margin: auto;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    background-image: url(img/background.jpg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.reg {
+    padding-left: 0px;
+}
+
+.flex {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-wrap: nowrap;
+    height: 100vh;
+}
+
+.secEl {
+    margin-top: 62px;
+}

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Subject</title>
+</head>
+<body>
+    <div class="container">
+        <div class="flex">
+        <div>
+        <h1 class="welcome">Save Subject</h1>
+        <div class="card">
+            <h2 class="logInText">Info</h2>
+            <form id="form">
+                <div class="form-container">
+                    <div class="form-text-container"><label for="abbreviation" class="label-text">Abbreviation:</label></div>
+                    <input type="text" id="abbreviation" name="abbreviation" class="inputInfo">
+                </div>
+                <div>
+                    <div class="form-text-container"><label for="teacher" class="label-text">Teacher:</label></div>
+                    <input type="text" id="teacher" name="teacher" class="inputInfo">
+                </div>
+                <div>
+                    <input type="submit" value="Save" class="btn-submit">
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="secEl">
+        <h1 class="welcome">Save Project</h1>
+        <div class="card">
+            <h2 class="logInText">Info</h2>
+            <form id="form">
+                <div class="form-container">
+                    <div class="form-text-container"><label for="name" class="label-text">Name:</label></div>
+                    <input type="text" id="name" name="name" class="inputInfo">
+                </div>
+                <div>
+                    <div class="form-text-container"><label for="comment" class="label-text">Comment:</label></div>
+                    <input type="text" id="comment" name="comment" class="inputInfo">
+                </div>
+                <div>
+                    <div class="form-text-container"><label for="subjectId" class="label-text">Subject Id:</label></div>
+                    <input type="text" id="subjectId" name="subjectId" class="inputInfo">
+                </div>
+                <div>
+                    <input type="submit" value="Save" class="btn-submit">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+    </div>
+    <script src="connectSubject.js"></script>
+    <script src="connectProject.js"></script>
+</body>
+</html>

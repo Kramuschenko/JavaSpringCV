@@ -11,19 +11,14 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @Log4j2
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
+@CrossOrigin(maxAge = 3600)
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -53,7 +48,7 @@ public class ProjectController {
 
     @PostMapping("/project")
     @ResponseBody
-    private ResponseEntity<String> saveProject(@RequestBody ProjectDto projectDto) throws MissingProjectNameException, MissingProjectSubjectIdException {
+    private ResponseEntity<String> saveProject(@RequestBody ProjectDto projectDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
 
         projectService.saveOrUpdate(projectDto);
         Integer id = projectDto.getId();
@@ -65,7 +60,7 @@ public class ProjectController {
 
     @PostMapping("/projects")
     @ResponseBody
-    private ResponseEntity<String> saveProjects(@RequestBody List<ProjectDto> projectsDto) throws MissingProjectNameException, MissingProjectSubjectIdException {
+    private ResponseEntity<String> saveProjects(@RequestBody List<ProjectDto> projectsDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
 
         projectService.saveOrUpdateProjects(projectsDto);
 

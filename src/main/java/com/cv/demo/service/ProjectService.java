@@ -52,7 +52,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public void saveOrUpdateProjects(List<ProjectDto> projectsDto) throws MissingProjectNameException, MissingProjectSubjectIdException {
+    public void saveOrUpdateProjects(List<ProjectDto> projectsDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
         int size = projectsDto.size();
         for (int i = 0; i < size; i++) {
 
@@ -76,7 +76,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public void saveOrUpdate(ProjectDto projectDto) throws MissingProjectNameException, MissingProjectSubjectIdException {
+    public void saveOrUpdate(ProjectDto projectDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
 
         Integer projectId = projectDto.getId();
 
@@ -107,18 +107,20 @@ public class ProjectService {
         projectRepository.save(project);
     }
 
-    private void validate(ProjectDto projectDto) throws MissingProjectNameException, MissingProjectSubjectIdException {
+    private void validate(ProjectDto projectDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
         Integer projectId = projectDto.getId();
-
-        if (projectDto.getName() == null) {
-            log.error("{} Project {} name is null", projectId == null ? "New" : "", projectId == null ? "" : projectId);
-            throw new MissingProjectNameException();
-        }
 
         if (projectDto.getSubjectId() == null) {
             log.error("{} Subject id in project {} is null", projectId == null ? "New" : "", projectId == null ? "" : projectId);
             throw new MissingProjectSubjectIdException();
         }
+
+        if (projectDto.getName() == null) {
+            log.error("{} Project {} name is null", projectId == null ? "New" : "", projectId == null ? "" : projectId);
+            throw new MissingProjectNameException();
+        }
+        subjectRepository.findById(projectDto.getSubjectId()).orElseThrow(SubjectNotFoundException::new);
+
     }
 
 
