@@ -55,13 +55,13 @@ public class SubjectService {
                 .collect(Collectors.toList());
     }
     @Transactional
-    public void saveOrUpdateSubjects(List<SubjectDto> subjectsDto) throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
+    public void saveOrUpdateSubjects(List<SubjectDto> subjectsDto) throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException, NegativeSubjectIdException {
         int size = subjectsDto.size();
         for (int i = 0; i < size; i++) {
             try {
                 saveOrUpdate(subjectsDto.get(i));
                 log.info("Subject {} of {} saved successfully", (i + 1), size);
-            } catch (MissingSubjectAbbreviationException | UpdatingArchiveSubjectException e) {
+            } catch (MissingSubjectAbbreviationException | UpdatingArchiveSubjectException | NegativeSubjectIdException e) {
                 errorsLog(subjectsDto, i, e);
                 throw e;
             }
@@ -79,7 +79,7 @@ public class SubjectService {
     }
 
     @Transactional
-    public Subject saveOrUpdate(SubjectDto subjectDto) throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
+    public Subject saveOrUpdate(SubjectDto subjectDto) throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException, NegativeSubjectIdException {
 
         Integer subjectId = subjectDto.getId();
 
@@ -113,12 +113,20 @@ public class SubjectService {
         return subjectRepository.save(subject);
     }
 
-    private void validate(SubjectDto subjectDto) throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
+    private void validate(SubjectDto subjectDto) throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException, NegativeSubjectIdException {
+
+        Integer subjectId = subjectDto.getId();
+
+        if (subjectId != null && subjectId < 0) {
+            throw new NegativeSubjectIdException();
+        }
+
         if (subjectDto.getAbbreviation() == null) {
             log.error("Subject abbreviation is null");
             throw new MissingSubjectAbbreviationException();
         }
-        if (subjectDto.getId() == ARCHIVE_SUBJECT_ID) {
+
+        if (subjectId == ARCHIVE_SUBJECT_ID) {
             throw new UpdatingArchiveSubjectException();
         }
     }

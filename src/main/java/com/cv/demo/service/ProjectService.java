@@ -5,10 +5,7 @@ import com.cv.demo.backend.Project;
 import com.cv.demo.backend.repository.ProjectRepository;
 import com.cv.demo.backend.repository.SubjectRepository;
 import com.cv.demo.dto.ProjectDto;
-import com.cv.demo.exception.MissingProjectNameException;
-import com.cv.demo.exception.MissingProjectSubjectIdException;
-import com.cv.demo.exception.ProjectNotFoundException;
-import com.cv.demo.exception.SubjectNotFoundException;
+import com.cv.demo.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.mapstruct.factory.Mappers;
@@ -52,14 +49,14 @@ public class ProjectService {
     }
 
     @Transactional
-    public void saveOrUpdateProjects(List<ProjectDto> projectsDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
+    public void saveOrUpdateProjects(List<ProjectDto> projectsDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException, NegativeProjectIdException {
         int size = projectsDto.size();
         for (int i = 0; i < size; i++) {
 
             try {
                 saveOrUpdate(projectsDto.get(i));
                 log.info("Project {} of {} saved successfully", (i + 1), size);
-            } catch (MissingProjectNameException | MissingProjectSubjectIdException e) {
+            } catch (MissingProjectNameException | MissingProjectSubjectIdException | NegativeProjectIdException e) {
                 errorsLog(projectsDto, i, e);
                 throw e;
             }
@@ -76,7 +73,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public void saveOrUpdate(ProjectDto projectDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
+    public void saveOrUpdate(ProjectDto projectDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException, NegativeProjectIdException {
 
         Integer projectId = projectDto.getId();
 
@@ -107,8 +104,13 @@ public class ProjectService {
         projectRepository.save(project);
     }
 
-    private void validate(ProjectDto projectDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
+    private void validate(ProjectDto projectDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException, NegativeProjectIdException {
         Integer projectId = projectDto.getId();
+
+        if (projectId != null && projectId < 0) {
+            log.error("project id can't be negative");
+            throw new NegativeProjectIdException();
+        }
 
         if (projectDto.getSubjectId() == null) {
             log.error("{} Subject id in project {} is null", projectId == null ? "New" : "", projectId == null ? "" : projectId);

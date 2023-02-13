@@ -212,7 +212,7 @@ public class SubjectServiceIT {
     @Test
     @Transactional
     @Rollback
-    public void shouldCreateSubjectWithSpecificSubjectId() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
+    public void shouldCreateSubjectWithSpecificSubjectId() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException, NegativeSubjectIdException {
         //given
         Integer subjectID = 4;
         String abbreviation = "Abbreviation";
@@ -245,7 +245,7 @@ public class SubjectServiceIT {
     @Test
     @Transactional
     @Rollback
-    public void shouldCreateSubjectWithFirstIdGenerated() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
+    public void shouldCreateSubjectWithFirstIdGenerated() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException, NegativeSubjectIdException {
         //given
         Integer subjectID = null;
         String abbreviation = "Abbreviation";
@@ -265,7 +265,7 @@ public class SubjectServiceIT {
     @Test
     @Transactional
     @Rollback
-    public void shouldCreateSubjectWithConsecutiveIdGenerated() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
+    public void shouldCreateSubjectWithConsecutiveIdGenerated() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException, NegativeSubjectIdException {
         //given
         Integer subjectID = 1;
         String abbreviation = "Abbreviation";
@@ -290,7 +290,7 @@ public class SubjectServiceIT {
     @Test(expected = MissingSubjectAbbreviationException.class)
     @Transactional
     @Rollback
-    public void shouldNotCreateSubjectWithNullAbbreviation() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
+    public void shouldNotCreateSubjectWithNullAbbreviation() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException, NegativeSubjectIdException {
         //given
         Integer subjectID = 1;
         String abbreviation = null;
@@ -304,10 +304,27 @@ public class SubjectServiceIT {
         //exception expected
     }
 
+    @Test(expected = NegativeSubjectIdException.class)
+    @Transactional
+    @Rollback
+    public void shouldNotCreateSubjectWithNegativeId() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException, NegativeSubjectIdException {
+        //given
+        Integer subjectID = -1;
+        String abbreviation = "Abbreviation";
+
+        SubjectDto subjectDtoNew = createSubjectDto(subjectID, abbreviation, null);
+
+        //when
+        subjectService.saveOrUpdate(subjectDtoNew);
+
+        //then
+        //exception expected
+    }
+
     @Test
     @Transactional
     @Rollback
-    public void shouldUpdateSubject() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
+    public void shouldUpdateSubject() throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException, NegativeSubjectIdException {
         //given
         Integer subjectId = 4;
         Integer projectId = 1;

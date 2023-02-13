@@ -1,10 +1,7 @@
 package com.cv.demo.frontend;
 
 import com.cv.demo.dto.ProjectDto;
-import com.cv.demo.exception.MissingProjectNameException;
-import com.cv.demo.exception.MissingProjectSubjectIdException;
-import com.cv.demo.exception.ProjectNotFoundException;
-import com.cv.demo.exception.SubjectNotFoundException;
+import com.cv.demo.exception.*;
 import com.cv.demo.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -48,7 +45,7 @@ public class ProjectController {
 
     @PostMapping("/project")
     @ResponseBody
-    private ResponseEntity<String> saveProject(@RequestBody ProjectDto projectDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
+    private ResponseEntity<String> saveProject(@RequestBody ProjectDto projectDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException, NegativeProjectIdException {
 
         projectService.saveOrUpdate(projectDto);
         Integer id = projectDto.getId();
@@ -60,7 +57,7 @@ public class ProjectController {
 
     @PostMapping("/projects")
     @ResponseBody
-    private ResponseEntity<String> saveProjects(@RequestBody List<ProjectDto> projectsDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
+    private ResponseEntity<String> saveProjects(@RequestBody List<ProjectDto> projectsDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException, NegativeProjectIdException {
 
         projectService.saveOrUpdateProjects(projectsDto);
 

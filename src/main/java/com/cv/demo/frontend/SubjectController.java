@@ -1,11 +1,7 @@
 package com.cv.demo.frontend;
 
 import com.cv.demo.dto.SubjectDto;
-import com.cv.demo.exception.ArchiveSubjectNotFoundException;
-import com.cv.demo.exception.DeletingArchiveSubjectException;
-import com.cv.demo.exception.MissingSubjectAbbreviationException;
-import com.cv.demo.exception.SubjectNotFoundException;
-import com.cv.demo.exception.UpdatingArchiveSubjectException;
+import com.cv.demo.exception.*;
 import com.cv.demo.service.SubjectService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -42,7 +38,7 @@ public class SubjectController {
     }
 
     @PostMapping("/subject")
-    private @ResponseBody ResponseEntity<String> saveSubject(@RequestBody SubjectDto subjectDto) throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException {
+    private @ResponseBody ResponseEntity<String> saveSubject(@RequestBody SubjectDto subjectDto) throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException, NegativeSubjectIdException {
         subjectService.saveOrUpdate(subjectDto);
         Integer subjectId = subjectDto.getId();
 
@@ -54,7 +50,7 @@ public class SubjectController {
     }
 
     @PostMapping("/subjects")
-    private @ResponseBody ResponseEntity<String> saveSubjects(@RequestBody List<SubjectDto> subjectsDto) throws UpdatingArchiveSubjectException, MissingSubjectAbbreviationException {
+    private @ResponseBody ResponseEntity<String> saveSubjects(@RequestBody List<SubjectDto> subjectsDto) throws UpdatingArchiveSubjectException, MissingSubjectAbbreviationException, NegativeSubjectIdException {
 
         subjectService.saveOrUpdateSubjects(subjectsDto);
         String answer = "Subjects added or updated";

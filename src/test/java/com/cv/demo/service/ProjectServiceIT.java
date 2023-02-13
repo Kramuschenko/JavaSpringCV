@@ -4,10 +4,7 @@ import com.cv.demo.assembler.ProjectAssembler;
 import com.cv.demo.backend.Project;
 import com.cv.demo.backend.repository.ProjectRepository;
 import com.cv.demo.dto.ProjectDto;
-import com.cv.demo.exception.MissingProjectNameException;
-import com.cv.demo.exception.MissingProjectSubjectIdException;
-import com.cv.demo.exception.ProjectNotFoundException;
-import com.cv.demo.exception.SubjectNotFoundException;
+import com.cv.demo.exception.*;
 import com.cv.demo.tools.ProjectITTool;
 import com.cv.demo.tools.SubjectITTool;
 import lombok.extern.log4j.Log4j2;
@@ -208,7 +205,7 @@ public class ProjectServiceIT {
     @Test
     @Transactional
     @Rollback
-    public void shouldCreateProjectWithSpecificSubjectId() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
+    public void shouldCreateProjectWithSpecificSubjectId() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException, NegativeProjectIdException {
 
         //given
         Integer subjectId = 1;
@@ -245,7 +242,7 @@ public class ProjectServiceIT {
     @Test
     @Transactional
     @Rollback
-    public void shouldCreateProjectWithGeneratedFirstId() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
+    public void shouldCreateProjectWithGeneratedFirstId() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException, NegativeProjectIdException {
 
         //given
         Integer subjectId = 1;
@@ -272,7 +269,7 @@ public class ProjectServiceIT {
     @Test
     @Transactional
     @Rollback
-    public void shouldCreateProjectWithConsecutiveIdGenerated() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
+    public void shouldCreateProjectWithConsecutiveIdGenerated() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException, NegativeProjectIdException {
 
         //given
         Integer subjectId = 1;
@@ -302,7 +299,7 @@ public class ProjectServiceIT {
     @Test(expected = MissingProjectSubjectIdException.class)
     @Transactional
     @Rollback
-    public void shouldNotCreateProjectWithNullSubjectID() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
+    public void shouldNotCreateProjectWithNullSubjectID() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException, NegativeProjectIdException {
 
         //given
         Integer subjectId = null;
@@ -322,7 +319,7 @@ public class ProjectServiceIT {
     @Test(expected = SubjectNotFoundException.class)
     @Transactional
     @Rollback
-    public void shouldNotCreateProjectWithNotFoundSubjectID() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
+    public void shouldNotCreateProjectWithNotFoundSubjectID() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException, NegativeProjectIdException {
 
         //given
         Integer subjectId = 10;
@@ -342,7 +339,7 @@ public class ProjectServiceIT {
     @Test(expected = MissingProjectNameException.class)
     @Transactional
     @Rollback
-    public void shouldNotCreateProjectWithNullName() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
+    public void shouldNotCreateProjectWithNullName() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException, NegativeProjectIdException {
 
         //given
         Integer subjectId = 1;
@@ -360,10 +357,31 @@ public class ProjectServiceIT {
         //exception expected
     }
 
+    @Test(expected = NegativeProjectIdException.class)
+    @Transactional
+    @Rollback
+    public void shouldNotCreateProjectWithNegativeId() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException, NegativeProjectIdException {
+
+        //given
+        Integer subjectId = 1;
+        String name = "Name";
+        String comment = "COMMENT";
+        Integer projectId = -10;
+
+        subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
+        ProjectDto projectNewDto = projectDto(projectId, name, comment, subjectId);
+
+        //when
+        projectService.saveOrUpdate(projectNewDto);
+
+        //then
+        //exception expected
+    }
+
     @Test
     @Transactional
     @Rollback
-    public void shouldUpdateProject() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException {
+    public void shouldUpdateProject() throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException, NegativeProjectIdException {
 
         //given
         Integer subjectId = 1;
