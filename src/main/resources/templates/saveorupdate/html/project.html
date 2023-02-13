@@ -1,42 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../../css/styleTest.css">
-    <title>Project</title>
-</head>
-<body>
-    <div class="container">
-        <div class="centerDiv">
-        <h1 class="welcome">Save Project</h1>
-        <div class="card">
-            <form id="form">
-                <div class="form-container">
-                    <div class="form-text-container"><label for="name" class="label-text">ID:</label></div>
-                    <label for="id"></label><input type="text" id="id" name="id" class="inputInfo">
-                </div>
-                <div class="form-container">
-                    <div class="form-text-container"><label for="name" class="label-text">Name:</label></div>
-                    <input type="text" id="name" name="name" class="inputInfo">
-                </div>
-                <div>
-                    <div class="form-text-container"><label for="comment" class="label-text">Comment:</label></div>
-                    <input type="text" id="comment" name="comment" class="inputInfo">
-                </div>
-                <div>
-                    <div class="form-text-container"><label for="subjectId" class="label-text">Subject ID:</label></div>
-                    <input type="text" id="subjectId" name="subjectId" class="inputInfo">
-                </div>
-                <div>
-                    <input type="submit" value="Save" class="btn-submit">
-                </div>
-            </form>
-            <button onclick="window.location.href = 'main.html';" class="btn-submit">Back</button>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="../../css/styleTest.css">
+        <title>Project</title>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="centerDiv">
+            <h1 class="welcome">Save Project</h1>
+            <div class="card">
+                <form id="form">
+                    <div class="form-container">
+                        <div class="form-text-container"><label for="name" class="label-text">ID:</label></div>
+                        <label for="id"></label><input type="text" id="id" name="id" class="inputInfo">
+                    </div>
+                    <div class="form-container">
+                        <div class="form-text-container"><label for="name" class="label-text">Name:</label></div>
+                        <input type="text" id="name" name="name" class="inputInfo">
+                    </div>
+                    <div>
+                        <div class="form-text-container"><label for="comment" class="label-text">Comment:</label></div>
+                        <input type="text" id="comment" name="comment" class="inputInfo">
+                    </div>
+                    <div>
+                        <div class="form-text-container"><label for="subjectId" class="label-text">Subject ID:</label></div>
+                        <input type="text" id="subjectId" name="subjectId" class="inputInfo">
+                    </div>
+                    <div>
+                        <input type="submit" value="Save" class="btn-submit">
+                    </div>
+                </form>
+                <button onclick="window.location.href = '../../main.html';" class="btn-submit">Back</button>
+            </div>
         </div>
-    </div>
-    </div>
-    <script src="../js/connectProject.js"></script>
-</body>
+        </div>
+        <script src="../js/connectProject.js"></script>
+    </body>
 </html>
