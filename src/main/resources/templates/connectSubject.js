@@ -3,17 +3,23 @@ form.addEventListener('submit', getFormValue);
 
 async function getFormValue(event) {
     event.preventDefault();
-    const abbreviation = form.querySelector('[name="abbreviation"]'),
+    const
+        id = form.querySelector('[name="id"]'),
+        abbreviation = form.querySelector('[name="abbreviation"]'),
         teacher = form.querySelector('[name="teacher"]');
 
 
     let dataSubject = {
-        id: null,
+        id: id.value,
         abbreviation: abbreviation.value,
         teacher: teacher.value,
     };
 
-    if (dataSubject.abbreviation == "") {
+    if (dataSubject.id === "") {
+        dataSubject.id = null
+    }
+
+    if (dataSubject.abbreviation === "") {
         dataSubject.abbreviation = null
     }
 
@@ -24,10 +30,16 @@ async function getFormValue(event) {
         },
         body: JSON.stringify(dataSubject)
     });
-    if (promise.status == 400) {
-        alert("error")
-    }
-    if (promise.status == 200) {
-        alert("top")
+
+    let status = promise.status;
+
+    switch (status) {
+        case 200 : alert("Success: " + status);
+            break;
+        case 400 : alert("Wrong input: " + status);
+            break;
+        case 404 : alert("Not found: " + status);
+            break;
+        default : alert("Server error: " + status);
     }
 }
