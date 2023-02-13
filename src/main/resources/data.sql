@@ -1,3 +1,5 @@
+create user test password '123' admin;
+
 INSERT INTO SUBJECT VALUES(0 , 'ARCHIVE', '2023-01-01 00:00:01' , '2023-01-01 00:00:01' , 'server');
 INSERT INTO SUBJECT VALUES (1, 'UTP', '2023-01-26 17:29:29.042' , '2023-01-26 17:28:59.042' , 'Barteczko');
 INSERT INTO SUBJECT VALUES (2, 'PPJ', '2022-05-10 19:37:59.042' , '2023-01-01 06:46:29.042' , 'Tomaszewski');
