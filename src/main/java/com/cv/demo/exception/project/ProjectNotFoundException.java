@@ -1,4 +1,4 @@
-package com.cv.demo.exception;
+package com.cv.demo.exception.project;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

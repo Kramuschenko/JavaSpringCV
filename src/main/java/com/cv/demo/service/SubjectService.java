@@ -6,7 +6,12 @@ import com.cv.demo.backend.Subject;
 import com.cv.demo.backend.repository.ProjectRepository;
 import com.cv.demo.backend.repository.SubjectRepository;
 import com.cv.demo.dto.SubjectDto;
-import com.cv.demo.exception.*;
+import com.cv.demo.exception.subject.ArchiveSubjectNotFoundException;
+import com.cv.demo.exception.subject.DeletingArchiveSubjectException;
+import com.cv.demo.exception.subject.MissingSubjectAbbreviationException;
+import com.cv.demo.exception.subject.NegativeSubjectIdException;
+import com.cv.demo.exception.subject.SubjectNotFoundException;
+import com.cv.demo.exception.subject.UpdatingArchiveSubjectException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.mapstruct.factory.Mappers;
@@ -54,6 +59,7 @@ public class SubjectService {
                 .map(subjectAssembler::toDto)
                 .collect(Collectors.toList());
     }
+
     @Transactional
     public void saveOrUpdateSubjects(List<SubjectDto> subjectsDto) throws MissingSubjectAbbreviationException, UpdatingArchiveSubjectException, NegativeSubjectIdException {
         int size = subjectsDto.size();
@@ -61,7 +67,8 @@ public class SubjectService {
             try {
                 saveOrUpdate(subjectsDto.get(i));
                 log.info("Subject {} of {} saved successfully", (i + 1), size);
-            } catch (MissingSubjectAbbreviationException | UpdatingArchiveSubjectException | NegativeSubjectIdException e) {
+            } catch (MissingSubjectAbbreviationException | UpdatingArchiveSubjectException |
+                     NegativeSubjectIdException e) {
                 errorsLog(subjectsDto, i, e);
                 throw e;
             }
@@ -108,7 +115,7 @@ public class SubjectService {
         subject.setAbbreviation(subjectDto.getAbbreviation());
         subject.setModifiedAt(LocalDateTime.now());
 
-        log.info("Subject {} has been created or updated", subjectId == subjectRepository.generateNextSubjectId()-1 ? "\"New\"" : subjectId);
+        log.info("Subject {} has been created or updated", subjectId == subjectRepository.generateNextSubjectId() - 1 ? "\"New\"" : subjectId);
         log.debug("Created or updated: {}", subject);
         return subjectRepository.save(subject);
     }
@@ -126,7 +133,7 @@ public class SubjectService {
             throw new MissingSubjectAbbreviationException();
         }
 
-        if (subjectId == ARCHIVE_SUBJECT_ID) {
+        if (ARCHIVE_SUBJECT_ID.equals(subjectId)) {
             throw new UpdatingArchiveSubjectException();
         }
     }
@@ -134,7 +141,7 @@ public class SubjectService {
     @Transactional
     public void delete(Integer id) throws SubjectNotFoundException, DeletingArchiveSubjectException, ArchiveSubjectNotFoundException {
 
-        if (id == ARCHIVE_SUBJECT_ID) {
+        if (ARCHIVE_SUBJECT_ID.equals(id)) {
             throw new DeletingArchiveSubjectException();
         }
 

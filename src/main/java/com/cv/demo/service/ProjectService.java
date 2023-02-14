@@ -5,7 +5,11 @@ import com.cv.demo.backend.Project;
 import com.cv.demo.backend.repository.ProjectRepository;
 import com.cv.demo.backend.repository.SubjectRepository;
 import com.cv.demo.dto.ProjectDto;
-import com.cv.demo.exception.*;
+import com.cv.demo.exception.project.MissingProjectNameException;
+import com.cv.demo.exception.project.MissingProjectSubjectIdException;
+import com.cv.demo.exception.project.NegativeProjectIdException;
+import com.cv.demo.exception.project.ProjectNotFoundException;
+import com.cv.demo.exception.subject.SubjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.mapstruct.factory.Mappers;
@@ -51,8 +55,8 @@ public class ProjectService {
     @Transactional
     public void saveOrUpdateProjects(List<ProjectDto> projectsDto) throws MissingProjectNameException, MissingProjectSubjectIdException, SubjectNotFoundException, NegativeProjectIdException {
         int size = projectsDto.size();
-        for (int i = 0; i < size; i++) {
 
+        for (int i = 0; i < size; i++) {
             try {
                 saveOrUpdate(projectsDto.get(i));
                 log.info("Project {} of {} saved successfully", (i + 1), size);

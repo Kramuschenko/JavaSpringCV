@@ -1,7 +1,12 @@
 package com.cv.demo.frontend;
 
 import com.cv.demo.dto.SubjectDto;
-import com.cv.demo.exception.*;
+import com.cv.demo.exception.subject.ArchiveSubjectNotFoundException;
+import com.cv.demo.exception.subject.DeletingArchiveSubjectException;
+import com.cv.demo.exception.subject.MissingSubjectAbbreviationException;
+import com.cv.demo.exception.subject.NegativeSubjectIdException;
+import com.cv.demo.exception.subject.SubjectNotFoundException;
+import com.cv.demo.exception.subject.UpdatingArchiveSubjectException;
 import com.cv.demo.service.SubjectService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

@@ -1,7 +1,11 @@
 package com.cv.demo.frontend;
 
 import com.cv.demo.dto.ProjectDto;
-import com.cv.demo.exception.*;
+import com.cv.demo.exception.project.MissingProjectNameException;
+import com.cv.demo.exception.project.MissingProjectSubjectIdException;
+import com.cv.demo.exception.project.NegativeProjectIdException;
+import com.cv.demo.exception.project.ProjectNotFoundException;
+import com.cv.demo.exception.subject.SubjectNotFoundException;
 import com.cv.demo.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

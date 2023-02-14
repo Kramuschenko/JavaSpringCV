@@ -4,7 +4,11 @@ import com.cv.demo.assembler.ProjectAssembler;
 import com.cv.demo.backend.Project;
 import com.cv.demo.backend.repository.ProjectRepository;
 import com.cv.demo.dto.ProjectDto;
-import com.cv.demo.exception.*;
+import com.cv.demo.exception.project.MissingProjectNameException;
+import com.cv.demo.exception.project.MissingProjectSubjectIdException;
+import com.cv.demo.exception.project.NegativeProjectIdException;
+import com.cv.demo.exception.project.ProjectNotFoundException;
+import com.cv.demo.exception.subject.SubjectNotFoundException;
 import com.cv.demo.tools.ProjectITTool;
 import com.cv.demo.tools.SubjectITTool;
 import lombok.extern.log4j.Log4j2;
@@ -39,7 +43,7 @@ public class ProjectServiceIT {
     private SubjectITTool subjectITTool;
     private final ProjectAssembler projectAssembler = Mappers.getMapper(ProjectAssembler.class);
 
-    private ProjectDto projectDto(Integer projectId , String name , String comment , Integer subjectId) {
+    private ProjectDto projectDto(Integer projectId, String name, String comment, Integer subjectId) {
         ProjectDto projectDto = new ProjectDto();
         projectDto.setId(projectId);
         projectDto.setName(name);
@@ -214,7 +218,7 @@ public class ProjectServiceIT {
         Integer projectId = 10;
 
         subjectITTool.createSubject(subjectId, "ABBREVIATION", "TEACHER");
-        ProjectDto projectNewDto = projectDto(projectId , name , comment, subjectId);
+        ProjectDto projectNewDto = projectDto(projectId, name, comment, subjectId);
 
         LocalDateTime before = LocalDateTime.now().minusSeconds(1L);
 
